@@ -17,7 +17,6 @@ syntax = 'proto3';
 package istio.operator.v1alpha1;
 
 import "google/protobuf/any.proto";
-import "google/protobuf/duration.proto";
 import "google/protobuf/struct.proto";
 import "google/protobuf/wrappers.proto";
 import "k8s.io/api/core/v1/generated.proto";
@@ -45,7 +44,7 @@ message ArchConfig {
 // Configuration for CNI.
 message CNIConfig {
   // Controls whether CNI is installed.
-  google.protobuf.BoolValue enabled = 1;
+  bool enabled = 1;
 
   // Hub to pull the container image from. Image will be `Hub/Image:Tag-Variant`.
   string hub = 2;
@@ -91,16 +90,16 @@ message CNIConfig {
   // env:
   //   ENV_VAR_1: value1
   //   ENV_VAR_2: value2
-  google.protobuf.Struct env = 32;
+  map<string, string> env = 32;
 
   // Additional labels to apply to the istio-cni DaemonSet.
-  google.protobuf.Struct daemonSetLabels = 33;
+  map<string, string> daemonSetLabels = 33;
 
   // Additional annotations to apply to the istio-cni Pods.
-  google.protobuf.Struct podAnnotations = 10 [deprecated = true];
+  map<string, string> podAnnotations = 10 [deprecated = true];
 
   // Additional labels to apply to the istio-cni Pods.
-  google.protobuf.Struct podLabels = 34;
+  map<string, string> podLabels = 34;
 
   // PodSecurityPolicy cluster role. No longer used anywhere.
   string psp_cluster_role = 11;
@@ -117,7 +116,7 @@ message CNIConfig {
 
   // Configure the plugin as a chained CNI plugin. When true, the configuration is added to the CNI chain; when false,
   // the configuration is added as a standalone file in the CNI configuration directory.
-  google.protobuf.BoolValue chained = 14;
+  bool chained = 14;
 
   // The resource quotas configuration for the CNI DaemonSet.
   ResourceQuotas resource_quotas = 16;
@@ -126,7 +125,7 @@ message CNIConfig {
   Resources resources = 17;
 
   // No longer used for CNI. See: https://github.com/istio/istio/issues/49004
-  google.protobuf.BoolValue privileged = 18 [deprecated = true];
+  bool privileged = 18 [deprecated = true];
 
   // The Container seccompProfile
   //
@@ -149,16 +148,16 @@ message CNIConfig {
   IntOrString rollingMaxUnavailable = 23;
 
   // Specifies if an Istio owned CNI config should be created.
-  google.protobuf.BoolValue istioOwnedCNIConfig = 35;
+  bool istioOwnedCNIConfig = 35;
   
   string istioOwnedCNIConfigFileName = 36;
 }
 
 message CNIUsageConfig {
   // Controls whether CNI should be used.
-  google.protobuf.BoolValue enabled = 1;
+  bool enabled = 1;
 
-  google.protobuf.BoolValue chained = 2 [deprecated = true];
+  bool chained = 2 [deprecated = true];
 
   // Specifies the CNI provider. Can be either "default" or "multus". When set to "multus", an annotation
   // `k8s.v1.cni.cncf.io/networks` is set on injected pods to point to a NetworkAttachmentDefinition
@@ -167,24 +166,24 @@ message CNIUsageConfig {
 
 message CNIAmbientConfig {
   // Controls whether ambient redirection is enabled
-  google.protobuf.BoolValue enabled = 1;
+  bool enabled = 1;
 
   // The directory path containing the configuration files for Ambient. Defaults to /etc/ambient-config.
   string configDir = 3;
 
   // If enabled, and ambient is enabled, DNS redirection will be enabled.
-  google.protobuf.BoolValue dnsCapture = 5;
+  bool dnsCapture = 5;
 
   // UNSTABLE: If enabled, and ambient is enabled, enables ipv6 support
-  google.protobuf.BoolValue ipv6 = 7;
+  bool ipv6 = 7;
 
   // If enabled, and ambient is enabled, iptables reconciliation will be enabled.
-  google.protobuf.BoolValue reconcileIptablesOnStartup = 9;
+  bool reconcileIptablesOnStartup = 9;
 }
 
 message CNIRepairConfig {
   // Controls whether repair behavior is enabled.
-  google.protobuf.BoolValue enabled = 1;
+  bool enabled = 1;
 
   // Hub to pull the container image from. Image will be `Hub/Image:Tag-Variant`.
   string hub = 2;
@@ -232,7 +231,7 @@ message CNIRepairConfig {
 // Configuration for the resource quotas for the CNI DaemonSet.
 message ResourceQuotas {
   // Controls whether to create resource quotas or not for the CNI DaemonSet.
-  google.protobuf.BoolValue enabled = 1;
+  bool enabled = 1;
 
   // The hard limit on the number of pods in the namespace where the CNI DaemonSet is deployed.
   int64 pods = 2;
@@ -260,7 +259,7 @@ message Resources {
 
 // Mirrors ServiceAccount for unmarshaling.
 message ServiceAccount {
-  google.protobuf.Struct annotations = 1;
+  map<string, string> annotations = 1;
 }
 
 // DefaultPodDisruptionBudgetConfig specifies the default pod disruption budget configuration.
@@ -268,7 +267,7 @@ message ServiceAccount {
 // See https://kubernetes.io/docs/concepts/workloads/pods/disruptions/
 message DefaultPodDisruptionBudgetConfig {
   // Controls whether a PodDisruptionBudget with a default minAvailable value of 1 is created for each deployment.
-  google.protobuf.BoolValue enabled = 1;
+  bool enabled = 1;
 }
 
 // DefaultResourcesConfig specifies the default k8s resources settings for all Istio control plane components.
@@ -282,7 +281,7 @@ message DefaultResourcesConfig {
 // Configuration for an egress gateway.
 message EgressGatewayConfig {
   // Controls whether auto scaling with a HorizontalPodAutoscaler is enabled.
-  google.protobuf.BoolValue autoscaleEnabled = 1;
+  bool autoscaleEnabled = 1;
 
   // maxReplicas setting for HorizontalPodAutoscaler.
   uint32 autoscaleMax = 2;
@@ -300,13 +299,13 @@ message EgressGatewayConfig {
   // See https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/
   TargetUtilizationConfig cpu = 5 [deprecated = true];
 
-  google.protobuf.BoolValue customService = 6;
+  bool customService = 6;
 
   // Controls whether an egress gateway is enabled.
-  google.protobuf.BoolValue enabled = 7;
+  bool enabled = 7;
 
   // Environment variables passed to the proxy container.
-  google.protobuf.Struct env = 8;
+  map<string, string> env = 8;
 
   map<string, string> labels = 9;
 
@@ -315,12 +314,12 @@ message EgressGatewayConfig {
   // K8s node selector.
   //
   // See https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#nodeselector
-  google.protobuf.Struct nodeSelector = 10 [deprecated = true];
+  map<string, string> nodeSelector = 10 [deprecated = true];
 
   // K8s annotations for pods.
   //
   // See: https://kubernetes.io/docs/concepts/overview/working-with-objects/annotations/
-  google.protobuf.Struct podAnnotations = 11 [deprecated = true];
+  map<string, string> podAnnotations = 11 [deprecated = true];
 
   // Pod anti-affinity label selector.
   //
@@ -361,7 +360,7 @@ message EgressGatewayConfig {
   repeated SecretVolume secretVolumes = 16;
 
   // Annotations to add to the egress gateway service.
-  google.protobuf.Struct serviceAnnotations = 17;
+  map<string, string> serviceAnnotations = 17;
 
   // Service type.
   //
@@ -380,11 +379,11 @@ message EgressGatewayConfig {
   // of pods at the start of the update.
   IntOrString rollingMaxUnavailable = 22 [deprecated = true];
 
-  repeated google.protobuf.Struct configVolumes = 23;
+  repeated map<string, google.protobuf.Value> configVolumes = 23;
 
-  repeated google.protobuf.Struct additionalContainers = 24;
+  repeated map<string, google.protobuf.Value> additionalContainers = 24;
 
-  google.protobuf.BoolValue runAsRoot = 26;
+  bool runAsRoot = 26;
 
   // The injection template to use for the gateway. If not set, no injection will be performed.
   string injectionTemplate = 27;
@@ -409,7 +408,7 @@ message GatewaysConfig {
   EgressGatewayConfig istio_egressgateway = 1 [json_name = "istio-egressgateway"];
 
   // Controls whether any gateways are enabled.
-  google.protobuf.BoolValue enabled = 2;
+  bool enabled = 2;
 
   // Configuration for an ingress gateway.
   IngressGatewayConfig istio_ingressgateway = 4 [json_name = "istio-ingressgateway"];
@@ -434,12 +433,12 @@ message GlobalConfig {
   repeated string certSigners = 68;
 
   // Controls whether the server-side validation is enabled.
-  google.protobuf.BoolValue configValidation = 3;
+  bool configValidation = 3;
 
   // Default k8s node selector for all the Istio control plane components
   //
   // See https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#nodeselector
-  google.protobuf.Struct defaultNodeSelector = 6 [deprecated = true];
+  map<string, string> defaultNodeSelector = 6 [deprecated = true];
 
   // Specifies the default pod disruption budget configuration.
   DefaultPodDisruptionBudgetConfig defaultPodDisruptionBudget = 7;
@@ -475,7 +474,7 @@ message GlobalConfig {
   string istioNamespace = 14;
 
   // Specifies whether istio components should output logs in json format by adding --log_as_json argument to each container.
-  google.protobuf.BoolValue logAsJson = 36;
+  bool logAsJson = 36;
 
   // Specifies the global logging level settings for the Istio control plane components.
   GlobalLoggingConfig logging = 17;
@@ -530,7 +529,7 @@ message GlobalConfig {
   //     - registryServiceName: istio-ingressgateway.istio-system.svc.cluster.local
   //       port: 443
   //
-  google.protobuf.Struct meshNetworks = 19;
+  map<string, google.protobuf.Value> meshNetworks = 19;
 
   // Specifies the Configuration for Istio mesh across multiple clusters through Istio gateways.
   MultiClusterConfig multiCluster = 22;
@@ -548,14 +547,14 @@ message GlobalConfig {
 
   // Controls whether the creation of the sidecar injector ConfigMap should be skipped.
   // Defaults to false. When set to true, the sidecar injector ConfigMap will not be created.
-  google.protobuf.BoolValue omitSidecarInjectorConfigMap = 38;
+  bool omitSidecarInjectorConfigMap = 38;
 
   // Controls whether the WebhookConfiguration resource(s) should be created. The current behavior
   // of Istiod is to manage its own webhook configurations.
   // When this option is set to true, Istio Operator, instead of webhooks, manages the
   // webhook configurations. When this option is set as false, webhooks manage their
   // own webhook configurations.
-  google.protobuf.BoolValue operatorManageWebhooks = 41;
+  bool operatorManageWebhooks = 41;
 
   // Specifies the k8s priorityClassName for the istio control plane components.
   //
@@ -601,16 +600,16 @@ message GlobalConfig {
   string revision = 59;
 
   // Controls whether the in-cluster MTLS key and certs are loaded from the secret volume mounts.
-  google.protobuf.BoolValue mountMtlsCerts = 60;
+  bool mountMtlsCerts = 60;
 
   // The address of the CA for CSR.
   string caAddress = 61;
 
   // Controls whether one external istiod is enabled.
-  google.protobuf.BoolValue externalIstiod = 62;
+  bool externalIstiod = 62;
 
   // Controls whether a remote cluster is the config cluster for an external istiod
-  google.protobuf.BoolValue configCluster = 64;
+  bool configCluster = 64;
 
   // The name of the CA for workloads.
   // For example, when caName=GkeWorkloadCertificate, GKE workload certificates
@@ -641,7 +640,7 @@ message GlobalConfig {
   string trustBundleName = 73;
 
   // Specifies whether native nftables rules should be used instead of iptables rules for traffic redirection.
-  google.protobuf.BoolValue nativeNftables = 74;
+  bool nativeNftables = 74;
 
   // Settings related to Kubernetes NetworkPolicy.
   NetworkPolicyConfig networkPolicy = 75;
@@ -669,7 +668,7 @@ message STSConfig {
 
 message IstiodConfig {
   // If enabled, istiod will perform config analysis
-  google.protobuf.BoolValue enableAnalysis = 2;
+  bool enableAnalysis = 2;
 }
 
 // GlobalLoggingConfig specifies the global logging level settings for the Istio control plane components.
@@ -683,7 +682,7 @@ message GlobalLoggingConfig {
 // Configuration for an ingress gateway.
 message IngressGatewayConfig {
   // Controls whether auto scaling with a HorizontalPodAutoscaler is enabled.
-  google.protobuf.BoolValue autoscaleEnabled = 1;
+  bool autoscaleEnabled = 1;
 
   // maxReplicas setting for HorizontalPodAutoscaler.
   uint32 autoscaleMax = 2;
@@ -701,13 +700,13 @@ message IngressGatewayConfig {
   // See https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/
   TargetUtilizationConfig cpu = 5 [deprecated = true];
 
-  google.protobuf.BoolValue customService = 6;
+  bool customService = 6;
 
   // Controls whether an ingress gateway is enabled.
-  google.protobuf.BoolValue enabled = 10;
+  bool enabled = 10;
 
   // Environment variables passed to the proxy container.
-  google.protobuf.Struct env = 11;
+  map<string, string> env = 11;
 
   map<string, string> labels = 15;
 
@@ -720,12 +719,12 @@ message IngressGatewayConfig {
   // K8s node selector.
   //
   // See https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#nodeselector
-  google.protobuf.Struct nodeSelector = 19 [deprecated = true];
+  map<string, string> nodeSelector = 19 [deprecated = true];
 
   // K8s annotations for pods.
   //
   // See: https://kubernetes.io/docs/concepts/overview/working-with-objects/annotations/
-  google.protobuf.Struct podAnnotations = 20 [deprecated = true];
+  map<string, string> podAnnotations = 20 [deprecated = true];
 
   // See EgressGatewayConfig.
   repeated k8s.io.apimachinery.pkg.apis.meta.v1.LabelSelector podAntiAffinityLabelSelector = 21 [deprecated = true];
@@ -742,13 +741,13 @@ message IngressGatewayConfig {
   // K8s resources settings.
   //
   // See https://kubernetes.io/docs/concepts/configuration/manage-compute-resources-container/#resource-requests-and-limits-of-pod-and-container
-  google.protobuf.Struct resources = 25 [deprecated = true];
+  map<string, string> resources = 25 [deprecated = true];
 
   // Config for secret volume mounts.
   repeated SecretVolume secretVolumes = 27;
 
   // Annotations to add to the egress gateway service.
-  google.protobuf.Struct serviceAnnotations = 28;
+  map<string, string> serviceAnnotations = 28;
 
   // Service type.
   //
@@ -769,13 +768,13 @@ message IngressGatewayConfig {
 
   repeated k8s.io.api.core.v1.Toleration tolerations = 35 [deprecated = true];
 
-  repeated google.protobuf.Struct ingressPorts = 36;
+  repeated map<string, google.protobuf.Value> ingressPorts = 36;
 
-  repeated google.protobuf.Struct additionalContainers = 37;
+  repeated map<string, google.protobuf.Value> additionalContainers = 37;
 
-  repeated google.protobuf.Struct configVolumes = 38;
+  repeated map<string, google.protobuf.Value> configVolumes = 38;
 
-  google.protobuf.BoolValue runAsRoot = 45;
+  bool runAsRoot = 45;
 
   // The injection template to use for the gateway. If not set, no injection will be performed.
   string injectionTemplate = 46;
@@ -798,7 +797,7 @@ message IngressGatewayConfig {
 message MultiClusterConfig {
   // Enables the connection between two kubernetes clusters via their respective ingressgateway services.
   // Use if the pods in each cluster cannot directly talk to one another.
-  google.protobuf.BoolValue enabled = 1;
+  bool enabled = 1;
 
   // The name of the cluster this installation will run in. This is required for sidecar injection
   // to properly label proxies
@@ -808,7 +807,7 @@ message MultiClusterConfig {
   string globalDomainSuffix = 3;
 
   // Enable envoy filter to translate `globalDomainSuffix` to cluster local suffix for cross cluster communication.
-  google.protobuf.BoolValue includeEnvoyFilter = 4;
+  bool includeEnvoyFilter = 4;
 }
 
 // OutboundTrafficPolicyConfig controls the default behavior of the sidecar for handling outbound traffic from the application.
@@ -826,10 +825,10 @@ message OutboundTrafficPolicyConfig {
 // Configuration for Pilot.
 message PilotConfig {
   // Controls whether Pilot is enabled.
-  google.protobuf.BoolValue enabled = 1;
+  bool enabled = 1;
 
   // Controls whether a HorizontalPodAutoscaler is installed for Pilot.
-  google.protobuf.BoolValue autoscaleEnabled = 2;
+  bool autoscaleEnabled = 2;
 
   // Minimum number of replicas in the HorizontalPodAutoscaler for Pilot.
   uint32 autoscaleMin = 3;
@@ -838,7 +837,7 @@ message PilotConfig {
   uint32 autoscaleMax = 4;
 
   // See https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/#configurable-scaling-behavior
-  google.protobuf.Struct autoscaleBehavior = 40;
+  map<string, google.protobuf.Value> autoscaleBehavior = 40;
 
   // Number of replicas in the Pilot Deployment.
   uint32 replicaCount = 5 [deprecated = true];
@@ -870,30 +869,30 @@ message PilotConfig {
   // K8s node selector.
   //
   // See https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#nodeselector
-  google.protobuf.Struct nodeSelector = 12 [deprecated = true];
+  map<string, string> nodeSelector = 12 [deprecated = true];
 
   // Maximum duration that a sidecar can be connected to a pilot.
   //
   // This setting balances out load across pilot instances, but adds some resource overhead.
   //
   // Examples: 300s, 30m, 1h
-  google.protobuf.Duration keepaliveMaxServerConnectionAge = 13;
+  k8s.io.apimachinery.pkg.apis.meta.v1.Duration keepaliveMaxServerConnectionAge = 13;
 
   // Labels that are added to Pilot deployment.
   //
   // See https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/
-  google.protobuf.Struct deploymentLabels = 14;
+  map<string, string> deploymentLabels = 14;
 
   // Labels that are added to Pilot pods.
   //
   // See https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/
-  google.protobuf.Struct podLabels = 36;
+  map<string, string> podLabels = 36;
 
   // Configuration settings passed to Pilot as a ConfigMap.
   //
   // This controls whether the mesh config map, generated from values.yaml is generated.
   // If false, pilot wil use default values or user-supplied values, in that order of preference.
-  google.protobuf.BoolValue configMap = 18;
+  bool configMap = 18;
 
   // Environment variables passed to the Pilot container.
   //
@@ -901,7 +900,7 @@ message PilotConfig {
   // env:
   //   ENV_VAR_1: value1
   //   ENV_VAR_2: value2
-  google.protobuf.Struct env = 21;
+  map<string, string> env = 21;
 
   // K8s affinity to set on the Pilot Pods.
   k8s.io.api.core.v1.Affinity affinity = 22;
@@ -924,15 +923,15 @@ message PilotConfig {
   // K8s annotations for pods.
   //
   // See: https://kubernetes.io/docs/concepts/overview/working-with-objects/annotations/
-  google.protobuf.Struct podAnnotations = 30 [deprecated = true];
+  map<string, string> podAnnotations = 30 [deprecated = true];
 
   // K8s annotations for the Service.
   //
   // See: https://kubernetes.io/docs/concepts/overview/working-with-objects/annotations/
-  google.protobuf.Struct serviceAnnotations = 37;
+  map<string, string> serviceAnnotations = 37;
 
   // K8s annotations for the service account
-  google.protobuf.Struct serviceAccountAnnotations = 56;
+  map<string, string> serviceAccountAnnotations = 56;
 
   // Specifies an extra root certificate in PEM format. This certificate will be trusted
   // by pilot when resolving JWKS URIs.
@@ -956,7 +955,7 @@ message PilotConfig {
   repeated k8s.io.api.core.v1.TopologySpreadConstraint topologySpreadConstraints = 41;
 
   // Additional container arguments for the Pilot container.
-  repeated google.protobuf.Struct extraContainerArgs = 42;
+  repeated map<string, google.protobuf.Value> extraContainerArgs = 42;
 
   // Additional volumeMounts to add to the Pilot container.
   repeated k8s.io.api.core.v1.VolumeMount volumeMounts = 49;
@@ -992,7 +991,7 @@ message PilotConfig {
   IstiodRemoteConfig istiodRemote = 61;
 
   // Configuration for the istio-discovery chart
-  repeated google.protobuf.Struct envVarFrom = 62;
+  repeated map<string, google.protobuf.Value> envVarFrom = 62;
 }
 
 message PilotTaintControllerConfig {
@@ -1034,13 +1033,13 @@ enum ingressControllerMode {
 // Controls whether Istio policy is applied to Pilot.
 message PilotPolicyConfig {
   // Controls whether Istio policy is applied to Pilot.
-  google.protobuf.BoolValue enabled = 1;
+  bool enabled = 1;
 }
 
 // Controls telemetry configuration
 message TelemetryConfig {
   // Controls whether telemetry is exported for Pilot.
-  google.protobuf.BoolValue enabled = 1;
+  bool enabled = 1;
 
   // Configuration for Telemetry v2.
   TelemetryV2Config v2 = 3;
@@ -1049,7 +1048,7 @@ message TelemetryConfig {
 // Controls whether pilot will configure telemetry v2.
 message TelemetryV2Config {
   // Controls whether pilot will configure telemetry v2.
-  google.protobuf.BoolValue enabled = 1;
+  bool enabled = 1;
 
   // Telemetry v2 settings for prometheus.
   TelemetryV2PrometheusConfig prometheus = 2;
@@ -1061,12 +1060,12 @@ message TelemetryV2Config {
 // Controls telemetry v2 prometheus settings.
 message TelemetryV2PrometheusConfig {
   // Controls whether stats envoyfilter would be enabled or not.
-  google.protobuf.BoolValue enabled = 1;
+  bool enabled = 1;
 }
 
 // TelemetryV2StackDriverConfig controls telemetry v2 stackdriver settings.
 message TelemetryV2StackDriverConfig {
-  google.protobuf.BoolValue enabled = 1;
+  bool enabled = 1;
 }
 
 // Configuration for a port.
@@ -1105,7 +1104,7 @@ message ProxyConfig {
   // Enables core dumps for newly injected sidecars.
   //
   // If set, newly injected sidecars will have core dumps enabled.
-  google.protobuf.BoolValue enableCoreDump = 9 [deprecated = true];
+  bool enableCoreDump = 9 [deprecated = true];
 
   // Specifies the Istio ingress ports not to capture.
   string excludeInboundPorts = 12;
@@ -1138,7 +1137,7 @@ message ProxyConfig {
   // Enables privileged securityContext for the istio-proxy container.
   //
   // See https://kubernetes.io/docs/tasks/configure-pod-container/security-context/
-  google.protobuf.BoolValue privileged = 19;
+  bool privileged = 19;
 
   // Sets the initial delay for readiness probes in seconds.
   uint32 readinessInitialDelaySeconds = 20;
@@ -1174,7 +1173,7 @@ message ProxyConfig {
   // Controls if sidecar is injected at the front of the container list and blocks the start of the other containers until the proxy is ready
   //
   // Deprecated: replaced by ProxyConfig setting which allows per-pod configuration of this behavior.
-  google.protobuf.BoolValue holdApplicationUntilProxyStarts = 37 [deprecated = true];
+  bool holdApplicationUntilProxyStarts = 37 [deprecated = true];
 
   // A comma separated list of inbound ports for which traffic is to be redirected to Envoy.
   // The wildcard character '*' can be used to configure redirection for all ports.
@@ -1194,7 +1193,7 @@ message StartupProbe {
   //
   // If the probe is disabled, it is recommended to have delay=1s,period=2s,failureThreshold=30.
   // This ensures the startup is reasonable fast (polling every 2s). 1s delay is used since the startup is not often ready instantly.
-  google.protobuf.BoolValue enabled = 1;
+  bool enabled = 1;
 
   // Minimum consecutive failures for the probe to be considered failed after having succeeded.
   uint32 failureThreshold = 2;
@@ -1231,7 +1230,7 @@ message ResourcesRequestsConfig {
 
 // Configuration for the SecretDiscoveryService instead of using K8S secrets to mount the certificates.
 message SDSConfig {
-  google.protobuf.Struct token = 5 [deprecated = true];
+  map<string, google.protobuf.Value> token = 5 [deprecated = true];
 }
 
 // Configuration for secret volume mounts.
@@ -1248,7 +1247,7 @@ message SecretVolume {
 // SidecarInjectorConfig is described in istio.io documentation.
 message SidecarInjectorConfig {
   // Enables sidecar auto-injection in namespaces by default.
-  google.protobuf.BoolValue enableNamespacesByDefault = 2;
+  bool enableNamespacesByDefault = 2;
 
   // Setting this to `IfNeeded` will result in the sidecar injector being run again if additional mutations occur. Default: Never
   string reinvocationPolicy = 3;
@@ -1264,11 +1263,11 @@ message SidecarInjectorConfig {
   repeated k8s.io.apimachinery.pkg.apis.meta.v1.LabelSelector alwaysInjectSelector = 12;
 
   //  If true, webhook or istioctl injector will rewrite PodSpec for liveness health check to redirect request to sidecar. This makes liveness check work even when mTLS is enabled.
-  google.protobuf.BoolValue rewriteAppHTTPProbe = 16;
+  bool rewriteAppHTTPProbe = 16;
 
   // injectedAnnotations are additional annotations that will be added to the pod spec after injection
   // This is primarily to support PSP annotations.
-  google.protobuf.Struct injectedAnnotations = 19;
+  map<string, string> injectedAnnotations = 19;
 
   // Configure the injection url for sidecar injector webhook
   string injectionURL = 22;
@@ -1284,7 +1283,7 @@ message SidecarInjectorConfig {
   // Then starting a pod with the `inject.istio.io/templates: hello` annotation, will result in the pod
   // being injected with the hello=world labels.
   // This is intended for advanced configuration only; most users should use the built in template
-  google.protobuf.Struct templates = 23;
+  map<string, google.protobuf.Value> templates = 23;
 
   // Default templates specifies a set of default templates that are used in sidecar injection.
   // By default, a template `sidecar` is always provided, which contains the template of default sidecar.
@@ -1343,7 +1342,7 @@ message TracerZipkinConfig {
 // Configuration for the stackdriver tracing service.
 message TracerStackdriverConfig {
   // enables trace output to stdout.
-  google.protobuf.BoolValue debug = 1;
+  bool debug = 1;
 
   // The global default max number of attributes per span.
   uint32 maxNumberOfAttributes = 2;
@@ -1357,16 +1356,16 @@ message TracerStackdriverConfig {
 
 message BaseConfig {
   // For Helm2 use, adds the CRDs to templates.
-  google.protobuf.BoolValue enableCRDTemplates = 1;
+  bool enableCRDTemplates = 1;
   // CRDs to exclude. Requires `enableCRDTemplates`
   repeated string excludedCRDs = 6;
   // URL to use for validating webhook.
   string validationURL = 2;
 
   // For istioctl usage to disable istio config crds in base
-  google.protobuf.BoolValue enableIstioConfigCRDs = 3;
+  bool enableIstioConfigCRDs = 3;
 
-  google.protobuf.BoolValue validateGateway = 4;
+  bool validateGateway = 4;
 
   // validation webhook CA bundle
   string validationCABundle = 5;
@@ -1380,10 +1379,10 @@ message IstiodRemoteConfig {
   // injector ca bundle
   string injectionCABundle = 3;
   // Indicates if this cluster/install should consume a "remote" istiod instance,
-  google.protobuf.BoolValue enabled = 5;
+  bool enabled = 5;
   // If `true`, indicates that this cluster/install should consume a "local istiod" installation,
   // local istiod inject sidecars
-  google.protobuf.BoolValue enabledLocalInjectorIstiod = 6;
+  bool enabledLocalInjectorIstiod = 6;
 }
 
 message Values {
@@ -1454,7 +1453,7 @@ message Values {
 // ExperimentalConfig is a placeholder for experimental installation features.
 message ExperimentalConfig {
   // Controls whether the experimental feature is enabled.
-  google.protobuf.BoolValue stableValidationPolicy = 1;
+  bool stableValidationPolicy = 1;
 }
 
 // IntOrString is a type that can hold an int32 or a string.  When used in
@@ -1505,5 +1504,5 @@ message WaypointConfig {
 // Configuration for NetworkPolicy
 message NetworkPolicyConfig {
   // Controls whether default NetworkPolicy resources will be created.
-  google.protobuf.BoolValue enabled = 1;
+  bool enabled = 1;
 }
