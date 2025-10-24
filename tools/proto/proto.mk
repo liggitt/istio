@@ -20,6 +20,7 @@ proto: operator-proto dns-proto echo-proto workload-proto zds-proto
 
 operator-proto:
 	buf generate --config $(BUF_CONFIG_DIR)/buf.yaml --path operator/pkg/ --output operator --template $(BUF_CONFIG_DIR)/buf.golang.yaml
+	go generate ./operator/pkg/apis/
 
 dns-proto:
 	buf generate --config $(BUF_CONFIG_DIR)/buf.yaml --path pkg/dns/ --output pkg --template $(BUF_CONFIG_DIR)/buf.golang.yaml
