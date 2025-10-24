@@ -27,11 +27,12 @@ import (
 	"strings"
 
 	"github.com/google/go-containerregistry/pkg/name"
+	"sigs.k8s.io/yaml"
+
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/apimachinery/pkg/util/intstr"
-	"sigs.k8s.io/yaml"
 
 	"istio.io/istio/operator/pkg/apis"
 	"istio.io/istio/operator/pkg/util"
@@ -217,7 +218,7 @@ func checkAutoScaleAndReplicaCount(values *apis.Values, spec apis.IstioOperatorS
 		return nil, nil
 	}
 	var warnings Warnings
-	if values.GetPilot().GetAutoscaleEnabled().GetValue() {
+	if values.GetPilot().GetAutoscaleEnabled() {
 		if spec.Components.Pilot != nil && spec.Components.Pilot.Kubernetes != nil && spec.Components.Pilot.Kubernetes.ReplicaCount > 1 {
 			warnings = append(warnings,
 				fmt.Errorf("components.pilot.k8s.replicaCount should not be set when values.pilot.autoscaleEnabled is true"))
@@ -233,11 +234,11 @@ func checkAutoScaleAndReplicaCount(values *apis.Values, spec apis.IstioOperatorS
 		}
 	}
 
-	if values.GetGateways().GetIstioIngressgateway().GetAutoscaleEnabled().GetValue() {
+	if values.GetGateways().GetIstioIngressgateway().GetAutoscaleEnabled() {
 		validateGateways(spec.Components.IngressGateways, "ingress")
 	}
 
-	if values.GetGateways().GetIstioEgressgateway().GetAutoscaleEnabled().GetValue() {
+	if values.GetGateways().GetIstioEgressgateway().GetAutoscaleEnabled() {
 		validateGateways(spec.Components.EgressGateways, "egress")
 	}
 
@@ -250,10 +251,10 @@ func checkAutoScaleAndReplicaCount(values *apis.Values, spec apis.IstioOperatorS
 func checkServicePorts(values *apis.Values, spec apis.IstioOperatorSpec) (Warnings, util.Errors) {
 	var errs util.Errors
 	if spec.Components != nil {
-		if !values.GetGateways().GetIstioIngressgateway().GetRunAsRoot().GetValue() {
+		if !values.GetGateways().GetIstioIngressgateway().GetRunAsRoot() {
 			errs = util.AppendErrs(errs, validateGateways(spec.Components.IngressGateways, "istio-ingressgateway"))
 		}
-		if !values.GetGateways().GetIstioEgressgateway().GetRunAsRoot().GetValue() {
+		if !values.GetGateways().GetIstioEgressgateway().GetRunAsRoot() {
 			errs = util.AppendErrs(errs, validateGateways(spec.Components.EgressGateways, "istio-egressgateway"))
 		}
 	}
