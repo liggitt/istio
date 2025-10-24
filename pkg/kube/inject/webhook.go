@@ -30,6 +30,8 @@ import (
 	goversion "github.com/hashicorp/go-version"
 	"github.com/prometheus/prometheus/util/strutil"
 	"gomodules.xyz/jsonpatch/v2"
+	"sigs.k8s.io/yaml"
+
 	admissionv1 "k8s.io/api/admission/v1"
 	kubeApiAdmissionv1beta1 "k8s.io/api/admission/v1beta1"
 	corev1 "k8s.io/api/core/v1"
@@ -41,7 +43,6 @@ import (
 	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/apimachinery/pkg/util/mergepatch"
 	"k8s.io/apimachinery/pkg/util/strategicpatch"
-	"sigs.k8s.io/yaml"
 
 	"istio.io/api/annotation"
 	"istio.io/api/label"
@@ -60,7 +61,6 @@ import (
 	"istio.io/istio/pkg/log"
 	"istio.io/istio/pkg/platform"
 	"istio.io/istio/pkg/slices"
-	"istio.io/istio/pkg/util/protomarshal"
 	"istio.io/istio/pkg/util/sets"
 )
 
@@ -372,7 +372,7 @@ func (v ValuesConfig) Map() map[string]any {
 func NewValuesConfig(v string) (ValuesConfig, error) {
 	c := ValuesConfig{raw: v}
 	valuesStruct := &opconfig.Values{}
-	if err := protomarshal.ApplyYAML(v, valuesStruct); err != nil {
+	if err := valuesStruct.UnmarshalYAML(v); err != nil {
 		return c, fmt.Errorf("could not parse configuration values: %v", err)
 	}
 	c.asStruct = valuesStruct
