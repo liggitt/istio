@@ -24,7 +24,6 @@ import (
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	_ "google.golang.org/protobuf/types/known/anypb"
-	durationpb "google.golang.org/protobuf/types/known/durationpb"
 	structpb "google.golang.org/protobuf/types/known/structpb"
 	wrapperspb "google.golang.org/protobuf/types/known/wrapperspb"
 	v1 "k8s.io/api/core/v1"
@@ -336,7 +335,7 @@ func (x *ArchConfig) GetArm64() uint32 {
 type CNIConfig struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Controls whether CNI is installed.
-	Enabled *wrapperspb.BoolValue `protobuf:"bytes,1,opt,name=enabled,proto3" json:"enabled,omitempty"`
+	Enabled bool `protobuf:"varint,1,opt,name=enabled,proto3" json:"enabled,omitempty"`
 	// Hub to pull the container image from. Image will be `Hub/Image:Tag-Variant`.
 	Hub string `protobuf:"bytes,2,opt,name=hub,proto3" json:"hub,omitempty"`
 	// The container image tag to pull. Image will be `Hub/Image:Tag-Variant`.
@@ -371,15 +370,15 @@ type CNIConfig struct {
 	//
 	//	ENV_VAR_1: value1
 	//	ENV_VAR_2: value2
-	Env *structpb.Struct `protobuf:"bytes,32,opt,name=env,proto3" json:"env,omitempty"`
+	Env map[string]string `protobuf:"bytes,32,rep,name=env,proto3" json:"env,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
 	// Additional labels to apply to the istio-cni DaemonSet.
-	DaemonSetLabels *structpb.Struct `protobuf:"bytes,33,opt,name=daemonSetLabels,proto3" json:"daemonSetLabels,omitempty"`
+	DaemonSetLabels map[string]string `protobuf:"bytes,33,rep,name=daemonSetLabels,proto3" json:"daemonSetLabels,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
 	// Additional annotations to apply to the istio-cni Pods.
 	//
 	// Deprecated: Marked as deprecated in pkg/apis/values_types.proto.
-	PodAnnotations *structpb.Struct `protobuf:"bytes,10,opt,name=podAnnotations,proto3" json:"podAnnotations,omitempty"`
+	PodAnnotations map[string]string `protobuf:"bytes,10,rep,name=podAnnotations,proto3" json:"podAnnotations,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
 	// Additional labels to apply to the istio-cni Pods.
-	PodLabels *structpb.Struct `protobuf:"bytes,34,opt,name=podLabels,proto3" json:"podLabels,omitempty"`
+	PodLabels map[string]string `protobuf:"bytes,34,rep,name=podLabels,proto3" json:"podLabels,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
 	// PodSecurityPolicy cluster role. No longer used anywhere.
 	PspClusterRole string `protobuf:"bytes,11,opt,name=psp_cluster_role,json=pspClusterRole,proto3" json:"psp_cluster_role,omitempty"`
 	// DEPRECATED. Configuration log level of istio-cni binary. By default, istio-cni sends all logs to the UDS server.
@@ -393,7 +392,7 @@ type CNIConfig struct {
 	Repair *CNIRepairConfig `protobuf:"bytes,13,opt,name=repair,proto3" json:"repair,omitempty"`
 	// Configure the plugin as a chained CNI plugin. When true, the configuration is added to the CNI chain; when false,
 	// the configuration is added as a standalone file in the CNI configuration directory.
-	Chained *wrapperspb.BoolValue `protobuf:"bytes,14,opt,name=chained,proto3" json:"chained,omitempty"`
+	Chained bool `protobuf:"varint,14,opt,name=chained,proto3" json:"chained,omitempty"`
 	// The resource quotas configuration for the CNI DaemonSet.
 	ResourceQuotas *ResourceQuotas `protobuf:"bytes,16,opt,name=resource_quotas,json=resourceQuotas,proto3" json:"resource_quotas,omitempty"`
 	// The k8s resource requests and limits for the istio-cni Pods.
@@ -401,7 +400,7 @@ type CNIConfig struct {
 	// No longer used for CNI. See: https://github.com/istio/istio/issues/49004
 	//
 	// Deprecated: Marked as deprecated in pkg/apis/values_types.proto.
-	Privileged *wrapperspb.BoolValue `protobuf:"bytes,18,opt,name=privileged,proto3" json:"privileged,omitempty"`
+	Privileged bool `protobuf:"varint,18,opt,name=privileged,proto3" json:"privileged,omitempty"`
 	// The Container seccompProfile
 	//
 	// See: https://kubernetes.io/docs/tutorials/security/seccomp/
@@ -419,8 +418,8 @@ type CNIConfig struct {
 	// of pods at the start of the update.
 	RollingMaxUnavailable *IntOrString `protobuf:"bytes,23,opt,name=rollingMaxUnavailable,proto3" json:"rollingMaxUnavailable,omitempty"`
 	// Specifies if an Istio owned CNI config should be created.
-	IstioOwnedCNIConfig         *wrapperspb.BoolValue `protobuf:"bytes,35,opt,name=istioOwnedCNIConfig,proto3" json:"istioOwnedCNIConfig,omitempty"`
-	IstioOwnedCNIConfigFileName string                `protobuf:"bytes,36,opt,name=istioOwnedCNIConfigFileName,proto3" json:"istioOwnedCNIConfigFileName,omitempty"`
+	IstioOwnedCNIConfig         bool   `protobuf:"varint,35,opt,name=istioOwnedCNIConfig,proto3" json:"istioOwnedCNIConfig,omitempty"`
+	IstioOwnedCNIConfigFileName string `protobuf:"bytes,36,opt,name=istioOwnedCNIConfigFileName,proto3" json:"istioOwnedCNIConfigFileName,omitempty"`
 	unknownFields               protoimpl.UnknownFields
 	sizeCache                   protoimpl.SizeCache
 }
@@ -455,11 +454,11 @@ func (*CNIConfig) Descriptor() ([]byte, []int) {
 	return file_pkg_apis_values_types_proto_rawDescGZIP(), []int{1}
 }
 
-func (x *CNIConfig) GetEnabled() *wrapperspb.BoolValue {
+func (x *CNIConfig) GetEnabled() bool {
 	if x != nil {
 		return x.Enabled
 	}
-	return nil
+	return false
 }
 
 func (x *CNIConfig) GetHub() string {
@@ -539,14 +538,14 @@ func (x *CNIConfig) GetAffinity() *v1.Affinity {
 	return nil
 }
 
-func (x *CNIConfig) GetEnv() *structpb.Struct {
+func (x *CNIConfig) GetEnv() map[string]string {
 	if x != nil {
 		return x.Env
 	}
 	return nil
 }
 
-func (x *CNIConfig) GetDaemonSetLabels() *structpb.Struct {
+func (x *CNIConfig) GetDaemonSetLabels() map[string]string {
 	if x != nil {
 		return x.DaemonSetLabels
 	}
@@ -554,14 +553,14 @@ func (x *CNIConfig) GetDaemonSetLabels() *structpb.Struct {
 }
 
 // Deprecated: Marked as deprecated in pkg/apis/values_types.proto.
-func (x *CNIConfig) GetPodAnnotations() *structpb.Struct {
+func (x *CNIConfig) GetPodAnnotations() map[string]string {
 	if x != nil {
 		return x.PodAnnotations
 	}
 	return nil
 }
 
-func (x *CNIConfig) GetPodLabels() *structpb.Struct {
+func (x *CNIConfig) GetPodLabels() map[string]string {
 	if x != nil {
 		return x.PodLabels
 	}
@@ -597,11 +596,11 @@ func (x *CNIConfig) GetRepair() *CNIRepairConfig {
 	return nil
 }
 
-func (x *CNIConfig) GetChained() *wrapperspb.BoolValue {
+func (x *CNIConfig) GetChained() bool {
 	if x != nil {
 		return x.Chained
 	}
-	return nil
+	return false
 }
 
 func (x *CNIConfig) GetResourceQuotas() *ResourceQuotas {
@@ -619,11 +618,11 @@ func (x *CNIConfig) GetResources() *Resources {
 }
 
 // Deprecated: Marked as deprecated in pkg/apis/values_types.proto.
-func (x *CNIConfig) GetPrivileged() *wrapperspb.BoolValue {
+func (x *CNIConfig) GetPrivileged() bool {
 	if x != nil {
 		return x.Privileged
 	}
-	return nil
+	return false
 }
 
 func (x *CNIConfig) GetSeccompProfile() *v1.SeccompProfile {
@@ -654,11 +653,11 @@ func (x *CNIConfig) GetRollingMaxUnavailable() *IntOrString {
 	return nil
 }
 
-func (x *CNIConfig) GetIstioOwnedCNIConfig() *wrapperspb.BoolValue {
+func (x *CNIConfig) GetIstioOwnedCNIConfig() bool {
 	if x != nil {
 		return x.IstioOwnedCNIConfig
 	}
-	return nil
+	return false
 }
 
 func (x *CNIConfig) GetIstioOwnedCNIConfigFileName() string {
@@ -671,9 +670,9 @@ func (x *CNIConfig) GetIstioOwnedCNIConfigFileName() string {
 type CNIUsageConfig struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Controls whether CNI should be used.
-	Enabled *wrapperspb.BoolValue `protobuf:"bytes,1,opt,name=enabled,proto3" json:"enabled,omitempty"`
+	Enabled bool `protobuf:"varint,1,opt,name=enabled,proto3" json:"enabled,omitempty"`
 	// Deprecated: Marked as deprecated in pkg/apis/values_types.proto.
-	Chained *wrapperspb.BoolValue `protobuf:"bytes,2,opt,name=chained,proto3" json:"chained,omitempty"`
+	Chained bool `protobuf:"varint,2,opt,name=chained,proto3" json:"chained,omitempty"`
 	// Specifies the CNI provider. Can be either "default" or "multus". When set to "multus", an annotation
 	// `k8s.v1.cni.cncf.io/networks` is set on injected pods to point to a NetworkAttachmentDefinition
 	Provider      string `protobuf:"bytes,3,opt,name=provider,proto3" json:"provider,omitempty"`
@@ -711,19 +710,19 @@ func (*CNIUsageConfig) Descriptor() ([]byte, []int) {
 	return file_pkg_apis_values_types_proto_rawDescGZIP(), []int{2}
 }
 
-func (x *CNIUsageConfig) GetEnabled() *wrapperspb.BoolValue {
+func (x *CNIUsageConfig) GetEnabled() bool {
 	if x != nil {
 		return x.Enabled
 	}
-	return nil
+	return false
 }
 
 // Deprecated: Marked as deprecated in pkg/apis/values_types.proto.
-func (x *CNIUsageConfig) GetChained() *wrapperspb.BoolValue {
+func (x *CNIUsageConfig) GetChained() bool {
 	if x != nil {
 		return x.Chained
 	}
-	return nil
+	return false
 }
 
 func (x *CNIUsageConfig) GetProvider() string {
@@ -736,15 +735,15 @@ func (x *CNIUsageConfig) GetProvider() string {
 type CNIAmbientConfig struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Controls whether ambient redirection is enabled
-	Enabled *wrapperspb.BoolValue `protobuf:"bytes,1,opt,name=enabled,proto3" json:"enabled,omitempty"`
+	Enabled bool `protobuf:"varint,1,opt,name=enabled,proto3" json:"enabled,omitempty"`
 	// The directory path containing the configuration files for Ambient. Defaults to /etc/ambient-config.
 	ConfigDir string `protobuf:"bytes,3,opt,name=configDir,proto3" json:"configDir,omitempty"`
 	// If enabled, and ambient is enabled, DNS redirection will be enabled.
-	DnsCapture *wrapperspb.BoolValue `protobuf:"bytes,5,opt,name=dnsCapture,proto3" json:"dnsCapture,omitempty"`
+	DnsCapture bool `protobuf:"varint,5,opt,name=dnsCapture,proto3" json:"dnsCapture,omitempty"`
 	// UNSTABLE: If enabled, and ambient is enabled, enables ipv6 support
-	Ipv6 *wrapperspb.BoolValue `protobuf:"bytes,7,opt,name=ipv6,proto3" json:"ipv6,omitempty"`
+	Ipv6 bool `protobuf:"varint,7,opt,name=ipv6,proto3" json:"ipv6,omitempty"`
 	// If enabled, and ambient is enabled, iptables reconciliation will be enabled.
-	ReconcileIptablesOnStartup *wrapperspb.BoolValue `protobuf:"bytes,9,opt,name=reconcileIptablesOnStartup,proto3" json:"reconcileIptablesOnStartup,omitempty"`
+	ReconcileIptablesOnStartup bool `protobuf:"varint,9,opt,name=reconcileIptablesOnStartup,proto3" json:"reconcileIptablesOnStartup,omitempty"`
 	unknownFields              protoimpl.UnknownFields
 	sizeCache                  protoimpl.SizeCache
 }
@@ -779,11 +778,11 @@ func (*CNIAmbientConfig) Descriptor() ([]byte, []int) {
 	return file_pkg_apis_values_types_proto_rawDescGZIP(), []int{3}
 }
 
-func (x *CNIAmbientConfig) GetEnabled() *wrapperspb.BoolValue {
+func (x *CNIAmbientConfig) GetEnabled() bool {
 	if x != nil {
 		return x.Enabled
 	}
-	return nil
+	return false
 }
 
 func (x *CNIAmbientConfig) GetConfigDir() string {
@@ -793,31 +792,31 @@ func (x *CNIAmbientConfig) GetConfigDir() string {
 	return ""
 }
 
-func (x *CNIAmbientConfig) GetDnsCapture() *wrapperspb.BoolValue {
+func (x *CNIAmbientConfig) GetDnsCapture() bool {
 	if x != nil {
 		return x.DnsCapture
 	}
-	return nil
+	return false
 }
 
-func (x *CNIAmbientConfig) GetIpv6() *wrapperspb.BoolValue {
+func (x *CNIAmbientConfig) GetIpv6() bool {
 	if x != nil {
 		return x.Ipv6
 	}
-	return nil
+	return false
 }
 
-func (x *CNIAmbientConfig) GetReconcileIptablesOnStartup() *wrapperspb.BoolValue {
+func (x *CNIAmbientConfig) GetReconcileIptablesOnStartup() bool {
 	if x != nil {
 		return x.ReconcileIptablesOnStartup
 	}
-	return nil
+	return false
 }
 
 type CNIRepairConfig struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Controls whether repair behavior is enabled.
-	Enabled *wrapperspb.BoolValue `protobuf:"bytes,1,opt,name=enabled,proto3" json:"enabled,omitempty"`
+	Enabled bool `protobuf:"varint,1,opt,name=enabled,proto3" json:"enabled,omitempty"`
 	// Hub to pull the container image from. Image will be `Hub/Image:Tag-Variant`.
 	Hub string `protobuf:"bytes,2,opt,name=hub,proto3" json:"hub,omitempty"`
 	// The container image tag to pull. Image will be `Hub/Image:Tag-Variant`.
@@ -886,11 +885,11 @@ func (*CNIRepairConfig) Descriptor() ([]byte, []int) {
 	return file_pkg_apis_values_types_proto_rawDescGZIP(), []int{4}
 }
 
-func (x *CNIRepairConfig) GetEnabled() *wrapperspb.BoolValue {
+func (x *CNIRepairConfig) GetEnabled() bool {
 	if x != nil {
 		return x.Enabled
 	}
-	return nil
+	return false
 }
 
 func (x *CNIRepairConfig) GetHub() string {
@@ -968,7 +967,7 @@ func (x *CNIRepairConfig) GetInitContainerName() string {
 type ResourceQuotas struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Controls whether to create resource quotas or not for the CNI DaemonSet.
-	Enabled *wrapperspb.BoolValue `protobuf:"bytes,1,opt,name=enabled,proto3" json:"enabled,omitempty"`
+	Enabled bool `protobuf:"varint,1,opt,name=enabled,proto3" json:"enabled,omitempty"`
 	// The hard limit on the number of pods in the namespace where the CNI DaemonSet is deployed.
 	Pods          int64 `protobuf:"varint,2,opt,name=pods,proto3" json:"pods,omitempty"`
 	unknownFields protoimpl.UnknownFields
@@ -1005,11 +1004,11 @@ func (*ResourceQuotas) Descriptor() ([]byte, []int) {
 	return file_pkg_apis_values_types_proto_rawDescGZIP(), []int{5}
 }
 
-func (x *ResourceQuotas) GetEnabled() *wrapperspb.BoolValue {
+func (x *ResourceQuotas) GetEnabled() bool {
 	if x != nil {
 		return x.Enabled
 	}
-	return nil
+	return false
 }
 
 func (x *ResourceQuotas) GetPods() int64 {
@@ -1128,7 +1127,7 @@ func (x *Resources) GetRequests() map[string]string {
 // Mirrors ServiceAccount for unmarshaling.
 type ServiceAccount struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Annotations   *structpb.Struct       `protobuf:"bytes,1,opt,name=annotations,proto3" json:"annotations,omitempty"`
+	Annotations   map[string]string      `protobuf:"bytes,1,rep,name=annotations,proto3" json:"annotations,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1163,7 +1162,7 @@ func (*ServiceAccount) Descriptor() ([]byte, []int) {
 	return file_pkg_apis_values_types_proto_rawDescGZIP(), []int{8}
 }
 
-func (x *ServiceAccount) GetAnnotations() *structpb.Struct {
+func (x *ServiceAccount) GetAnnotations() map[string]string {
 	if x != nil {
 		return x.Annotations
 	}
@@ -1176,7 +1175,7 @@ func (x *ServiceAccount) GetAnnotations() *structpb.Struct {
 type DefaultPodDisruptionBudgetConfig struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Controls whether a PodDisruptionBudget with a default minAvailable value of 1 is created for each deployment.
-	Enabled       *wrapperspb.BoolValue `protobuf:"bytes,1,opt,name=enabled,proto3" json:"enabled,omitempty"`
+	Enabled       bool `protobuf:"varint,1,opt,name=enabled,proto3" json:"enabled,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1211,11 +1210,11 @@ func (*DefaultPodDisruptionBudgetConfig) Descriptor() ([]byte, []int) {
 	return file_pkg_apis_values_types_proto_rawDescGZIP(), []int{9}
 }
 
-func (x *DefaultPodDisruptionBudgetConfig) GetEnabled() *wrapperspb.BoolValue {
+func (x *DefaultPodDisruptionBudgetConfig) GetEnabled() bool {
 	if x != nil {
 		return x.Enabled
 	}
-	return nil
+	return false
 }
 
 // DefaultResourcesConfig specifies the default k8s resources settings for all Istio control plane components.
@@ -1270,7 +1269,7 @@ func (x *DefaultResourcesConfig) GetRequests() *ResourcesRequestsConfig {
 type EgressGatewayConfig struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Controls whether auto scaling with a HorizontalPodAutoscaler is enabled.
-	AutoscaleEnabled *wrapperspb.BoolValue `protobuf:"bytes,1,opt,name=autoscaleEnabled,proto3" json:"autoscaleEnabled,omitempty"`
+	AutoscaleEnabled bool `protobuf:"varint,1,opt,name=autoscaleEnabled,proto3" json:"autoscaleEnabled,omitempty"`
 	// maxReplicas setting for HorizontalPodAutoscaler.
 	AutoscaleMax uint32 `protobuf:"varint,2,opt,name=autoscaleMax,proto3" json:"autoscaleMax,omitempty"`
 	// minReplicas setting for HorizontalPodAutoscaler.
@@ -1287,11 +1286,11 @@ type EgressGatewayConfig struct {
 	//
 	// Deprecated: Marked as deprecated in pkg/apis/values_types.proto.
 	Cpu           *TargetUtilizationConfig `protobuf:"bytes,5,opt,name=cpu,proto3" json:"cpu,omitempty"`
-	CustomService *wrapperspb.BoolValue    `protobuf:"bytes,6,opt,name=customService,proto3" json:"customService,omitempty"`
+	CustomService bool                     `protobuf:"varint,6,opt,name=customService,proto3" json:"customService,omitempty"`
 	// Controls whether an egress gateway is enabled.
-	Enabled *wrapperspb.BoolValue `protobuf:"bytes,7,opt,name=enabled,proto3" json:"enabled,omitempty"`
+	Enabled bool `protobuf:"varint,7,opt,name=enabled,proto3" json:"enabled,omitempty"`
 	// Environment variables passed to the proxy container.
-	Env    *structpb.Struct  `protobuf:"bytes,8,opt,name=env,proto3" json:"env,omitempty"`
+	Env    map[string]string `protobuf:"bytes,8,rep,name=env,proto3" json:"env,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
 	Labels map[string]string `protobuf:"bytes,9,rep,name=labels,proto3" json:"labels,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
 	Name   string            `protobuf:"bytes,25,opt,name=name,proto3" json:"name,omitempty"`
 	// K8s node selector.
@@ -1299,13 +1298,13 @@ type EgressGatewayConfig struct {
 	// See https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#nodeselector
 	//
 	// Deprecated: Marked as deprecated in pkg/apis/values_types.proto.
-	NodeSelector *structpb.Struct `protobuf:"bytes,10,opt,name=nodeSelector,proto3" json:"nodeSelector,omitempty"`
+	NodeSelector map[string]string `protobuf:"bytes,10,rep,name=nodeSelector,proto3" json:"nodeSelector,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
 	// K8s annotations for pods.
 	//
 	// See: https://kubernetes.io/docs/concepts/overview/working-with-objects/annotations/
 	//
 	// Deprecated: Marked as deprecated in pkg/apis/values_types.proto.
-	PodAnnotations *structpb.Struct `protobuf:"bytes,11,opt,name=podAnnotations,proto3" json:"podAnnotations,omitempty"`
+	PodAnnotations map[string]string `protobuf:"bytes,11,rep,name=podAnnotations,proto3" json:"podAnnotations,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
 	// Pod anti-affinity label selector.
 	//
 	// Specify the pod anti-affinity that allows you to constrain which nodes
@@ -1348,7 +1347,7 @@ type EgressGatewayConfig struct {
 	// Config for secret volume mounts.
 	SecretVolumes []*SecretVolume `protobuf:"bytes,16,rep,name=secretVolumes,proto3" json:"secretVolumes,omitempty"`
 	// Annotations to add to the egress gateway service.
-	ServiceAnnotations *structpb.Struct `protobuf:"bytes,17,opt,name=serviceAnnotations,proto3" json:"serviceAnnotations,omitempty"`
+	ServiceAnnotations map[string]string `protobuf:"bytes,17,rep,name=serviceAnnotations,proto3" json:"serviceAnnotations,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
 	// Service type.
 	//
 	// See https://kubernetes.io/docs/concepts/services-networking/service/#publishing-services-service-types
@@ -1366,10 +1365,10 @@ type EgressGatewayConfig struct {
 	// of pods at the start of the update.
 	//
 	// Deprecated: Marked as deprecated in pkg/apis/values_types.proto.
-	RollingMaxUnavailable *IntOrString          `protobuf:"bytes,22,opt,name=rollingMaxUnavailable,proto3" json:"rollingMaxUnavailable,omitempty"`
-	ConfigVolumes         []*structpb.Struct    `protobuf:"bytes,23,rep,name=configVolumes,proto3" json:"configVolumes,omitempty"`
-	AdditionalContainers  []*structpb.Struct    `protobuf:"bytes,24,rep,name=additionalContainers,proto3" json:"additionalContainers,omitempty"`
-	RunAsRoot             *wrapperspb.BoolValue `protobuf:"bytes,26,opt,name=runAsRoot,proto3" json:"runAsRoot,omitempty"`
+	RollingMaxUnavailable *IntOrString               `protobuf:"bytes,22,opt,name=rollingMaxUnavailable,proto3" json:"rollingMaxUnavailable,omitempty"`
+	ConfigVolumes         map[string]*structpb.Value `protobuf:"bytes,23,rep,name=configVolumes,proto3" json:"configVolumes,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	AdditionalContainers  map[string]*structpb.Value `protobuf:"bytes,24,rep,name=additionalContainers,proto3" json:"additionalContainers,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	RunAsRoot             bool                       `protobuf:"varint,26,opt,name=runAsRoot,proto3" json:"runAsRoot,omitempty"`
 	// The injection template to use for the gateway. If not set, no injection will be performed.
 	InjectionTemplate string          `protobuf:"bytes,27,opt,name=injectionTemplate,proto3" json:"injectionTemplate,omitempty"`
 	ServiceAccount    *ServiceAccount `protobuf:"bytes,28,opt,name=serviceAccount,proto3" json:"serviceAccount,omitempty"`
@@ -1415,11 +1414,11 @@ func (*EgressGatewayConfig) Descriptor() ([]byte, []int) {
 	return file_pkg_apis_values_types_proto_rawDescGZIP(), []int{11}
 }
 
-func (x *EgressGatewayConfig) GetAutoscaleEnabled() *wrapperspb.BoolValue {
+func (x *EgressGatewayConfig) GetAutoscaleEnabled() bool {
 	if x != nil {
 		return x.AutoscaleEnabled
 	}
-	return nil
+	return false
 }
 
 func (x *EgressGatewayConfig) GetAutoscaleMax() uint32 {
@@ -1452,21 +1451,21 @@ func (x *EgressGatewayConfig) GetCpu() *TargetUtilizationConfig {
 	return nil
 }
 
-func (x *EgressGatewayConfig) GetCustomService() *wrapperspb.BoolValue {
+func (x *EgressGatewayConfig) GetCustomService() bool {
 	if x != nil {
 		return x.CustomService
 	}
-	return nil
+	return false
 }
 
-func (x *EgressGatewayConfig) GetEnabled() *wrapperspb.BoolValue {
+func (x *EgressGatewayConfig) GetEnabled() bool {
 	if x != nil {
 		return x.Enabled
 	}
-	return nil
+	return false
 }
 
-func (x *EgressGatewayConfig) GetEnv() *structpb.Struct {
+func (x *EgressGatewayConfig) GetEnv() map[string]string {
 	if x != nil {
 		return x.Env
 	}
@@ -1488,7 +1487,7 @@ func (x *EgressGatewayConfig) GetName() string {
 }
 
 // Deprecated: Marked as deprecated in pkg/apis/values_types.proto.
-func (x *EgressGatewayConfig) GetNodeSelector() *structpb.Struct {
+func (x *EgressGatewayConfig) GetNodeSelector() map[string]string {
 	if x != nil {
 		return x.NodeSelector
 	}
@@ -1496,7 +1495,7 @@ func (x *EgressGatewayConfig) GetNodeSelector() *structpb.Struct {
 }
 
 // Deprecated: Marked as deprecated in pkg/apis/values_types.proto.
-func (x *EgressGatewayConfig) GetPodAnnotations() *structpb.Struct {
+func (x *EgressGatewayConfig) GetPodAnnotations() map[string]string {
 	if x != nil {
 		return x.PodAnnotations
 	}
@@ -1541,7 +1540,7 @@ func (x *EgressGatewayConfig) GetSecretVolumes() []*SecretVolume {
 	return nil
 }
 
-func (x *EgressGatewayConfig) GetServiceAnnotations() *structpb.Struct {
+func (x *EgressGatewayConfig) GetServiceAnnotations() map[string]string {
 	if x != nil {
 		return x.ServiceAnnotations
 	}
@@ -1579,25 +1578,25 @@ func (x *EgressGatewayConfig) GetRollingMaxUnavailable() *IntOrString {
 	return nil
 }
 
-func (x *EgressGatewayConfig) GetConfigVolumes() []*structpb.Struct {
+func (x *EgressGatewayConfig) GetConfigVolumes() map[string]*structpb.Value {
 	if x != nil {
 		return x.ConfigVolumes
 	}
 	return nil
 }
 
-func (x *EgressGatewayConfig) GetAdditionalContainers() []*structpb.Struct {
+func (x *EgressGatewayConfig) GetAdditionalContainers() map[string]*structpb.Value {
 	if x != nil {
 		return x.AdditionalContainers
 	}
 	return nil
 }
 
-func (x *EgressGatewayConfig) GetRunAsRoot() *wrapperspb.BoolValue {
+func (x *EgressGatewayConfig) GetRunAsRoot() bool {
 	if x != nil {
 		return x.RunAsRoot
 	}
-	return nil
+	return false
 }
 
 func (x *EgressGatewayConfig) GetInjectionTemplate() string {
@@ -1634,7 +1633,7 @@ type GatewaysConfig struct {
 	// Configuration for an egress gateway.
 	IstioEgressgateway *EgressGatewayConfig `protobuf:"bytes,1,opt,name=istio_egressgateway,json=istio-egressgateway,proto3" json:"istio_egressgateway,omitempty"`
 	// Controls whether any gateways are enabled.
-	Enabled *wrapperspb.BoolValue `protobuf:"bytes,2,opt,name=enabled,proto3" json:"enabled,omitempty"`
+	Enabled bool `protobuf:"varint,2,opt,name=enabled,proto3" json:"enabled,omitempty"`
 	// Configuration for an ingress gateway.
 	IstioIngressgateway *IngressGatewayConfig `protobuf:"bytes,4,opt,name=istio_ingressgateway,json=istio-ingressgateway,proto3" json:"istio_ingressgateway,omitempty"`
 	SecurityContext     *structpb.Value       `protobuf:"bytes,10,opt,name=securityContext,proto3" json:"securityContext,omitempty"`
@@ -1680,11 +1679,11 @@ func (x *GatewaysConfig) GetIstioEgressgateway() *EgressGatewayConfig {
 	return nil
 }
 
-func (x *GatewaysConfig) GetEnabled() *wrapperspb.BoolValue {
+func (x *GatewaysConfig) GetEnabled() bool {
 	if x != nil {
 		return x.Enabled
 	}
-	return nil
+	return false
 }
 
 func (x *GatewaysConfig) GetIstioIngressgateway() *IngressGatewayConfig {
@@ -1725,13 +1724,13 @@ type GlobalConfig struct {
 	// List of certSigners to allow "approve" action in the ClusterRole
 	CertSigners []string `protobuf:"bytes,68,rep,name=certSigners,proto3" json:"certSigners,omitempty"`
 	// Controls whether the server-side validation is enabled.
-	ConfigValidation *wrapperspb.BoolValue `protobuf:"bytes,3,opt,name=configValidation,proto3" json:"configValidation,omitempty"`
+	ConfigValidation bool `protobuf:"varint,3,opt,name=configValidation,proto3" json:"configValidation,omitempty"`
 	// Default k8s node selector for all the Istio control plane components
 	//
 	// See https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#nodeselector
 	//
 	// Deprecated: Marked as deprecated in pkg/apis/values_types.proto.
-	DefaultNodeSelector *structpb.Struct `protobuf:"bytes,6,opt,name=defaultNodeSelector,proto3" json:"defaultNodeSelector,omitempty"`
+	DefaultNodeSelector map[string]string `protobuf:"bytes,6,rep,name=defaultNodeSelector,proto3" json:"defaultNodeSelector,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
 	// Specifies the default pod disruption budget configuration.
 	DefaultPodDisruptionBudget *DefaultPodDisruptionBudgetConfig `protobuf:"bytes,7,opt,name=defaultPodDisruptionBudget,proto3" json:"defaultPodDisruptionBudget,omitempty"`
 	// Default k8s resources settings for all Istio control plane components.
@@ -1763,7 +1762,7 @@ type GlobalConfig struct {
 	// Specifies the default namespace for the Istio control plane components.
 	IstioNamespace string `protobuf:"bytes,14,opt,name=istioNamespace,proto3" json:"istioNamespace,omitempty"`
 	// Specifies whether istio components should output logs in json format by adding --log_as_json argument to each container.
-	LogAsJson *wrapperspb.BoolValue `protobuf:"bytes,36,opt,name=logAsJson,proto3" json:"logAsJson,omitempty"`
+	LogAsJson bool `protobuf:"varint,36,opt,name=logAsJson,proto3" json:"logAsJson,omitempty"`
 	// Specifies the global logging level settings for the Istio control plane components.
 	Logging *GlobalLoggingConfig `protobuf:"bytes,17,opt,name=logging,proto3" json:"logging,omitempty"`
 	// The Mesh Identifier. It should be unique within the scope where
@@ -1815,7 +1814,7 @@ type GlobalConfig struct {
 	//	  gateways:
 	//	  - registryServiceName: istio-ingressgateway.istio-system.svc.cluster.local
 	//	    port: 443
-	MeshNetworks *structpb.Struct `protobuf:"bytes,19,opt,name=meshNetworks,proto3" json:"meshNetworks,omitempty"`
+	MeshNetworks map[string]*structpb.Value `protobuf:"bytes,19,rep,name=meshNetworks,proto3" json:"meshNetworks,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
 	// Specifies the Configuration for Istio mesh across multiple clusters through Istio gateways.
 	MultiCluster *MultiClusterConfig `protobuf:"bytes,22,opt,name=multiCluster,proto3" json:"multiCluster,omitempty"`
 	// Network defines the network this cluster belong to. This name
@@ -1829,13 +1828,13 @@ type GlobalConfig struct {
 	PodDNSSearchNamespaces []string `protobuf:"bytes,43,rep,name=podDNSSearchNamespaces,proto3" json:"podDNSSearchNamespaces,omitempty"`
 	// Controls whether the creation of the sidecar injector ConfigMap should be skipped.
 	// Defaults to false. When set to true, the sidecar injector ConfigMap will not be created.
-	OmitSidecarInjectorConfigMap *wrapperspb.BoolValue `protobuf:"bytes,38,opt,name=omitSidecarInjectorConfigMap,proto3" json:"omitSidecarInjectorConfigMap,omitempty"`
+	OmitSidecarInjectorConfigMap bool `protobuf:"varint,38,opt,name=omitSidecarInjectorConfigMap,proto3" json:"omitSidecarInjectorConfigMap,omitempty"`
 	// Controls whether the WebhookConfiguration resource(s) should be created. The current behavior
 	// of Istiod is to manage its own webhook configurations.
 	// When this option is set to true, Istio Operator, instead of webhooks, manages the
 	// webhook configurations. When this option is set as false, webhooks manage their
 	// own webhook configurations.
-	OperatorManageWebhooks *wrapperspb.BoolValue `protobuf:"bytes,41,opt,name=operatorManageWebhooks,proto3" json:"operatorManageWebhooks,omitempty"`
+	OperatorManageWebhooks bool `protobuf:"varint,41,opt,name=operatorManageWebhooks,proto3" json:"operatorManageWebhooks,omitempty"`
 	// Specifies the k8s priorityClassName for the istio control plane components.
 	//
 	// See https://kubernetes.io/docs/concepts/configuration/pod-priority-preemption/#priorityclass
@@ -1871,13 +1870,13 @@ type GlobalConfig struct {
 	// Configures the revision this control plane is a part of
 	Revision string `protobuf:"bytes,59,opt,name=revision,proto3" json:"revision,omitempty"`
 	// Controls whether the in-cluster MTLS key and certs are loaded from the secret volume mounts.
-	MountMtlsCerts *wrapperspb.BoolValue `protobuf:"bytes,60,opt,name=mountMtlsCerts,proto3" json:"mountMtlsCerts,omitempty"`
+	MountMtlsCerts bool `protobuf:"varint,60,opt,name=mountMtlsCerts,proto3" json:"mountMtlsCerts,omitempty"`
 	// The address of the CA for CSR.
 	CaAddress string `protobuf:"bytes,61,opt,name=caAddress,proto3" json:"caAddress,omitempty"`
 	// Controls whether one external istiod is enabled.
-	ExternalIstiod *wrapperspb.BoolValue `protobuf:"bytes,62,opt,name=externalIstiod,proto3" json:"externalIstiod,omitempty"`
+	ExternalIstiod bool `protobuf:"varint,62,opt,name=externalIstiod,proto3" json:"externalIstiod,omitempty"`
 	// Controls whether a remote cluster is the config cluster for an external istiod
-	ConfigCluster *wrapperspb.BoolValue `protobuf:"bytes,64,opt,name=configCluster,proto3" json:"configCluster,omitempty"`
+	ConfigCluster bool `protobuf:"varint,64,opt,name=configCluster,proto3" json:"configCluster,omitempty"`
 	// The name of the CA for workloads.
 	// For example, when caName=GkeWorkloadCertificate, GKE workload certificates
 	// will be used as the certificates for workloads.
@@ -1901,7 +1900,7 @@ type GlobalConfig struct {
 	// Select a custom name for istiod's CA Root Cert ConfigMap.
 	TrustBundleName string `protobuf:"bytes,73,opt,name=trustBundleName,proto3" json:"trustBundleName,omitempty"`
 	// Specifies whether native nftables rules should be used instead of iptables rules for traffic redirection.
-	NativeNftables *wrapperspb.BoolValue `protobuf:"bytes,74,opt,name=nativeNftables,proto3" json:"nativeNftables,omitempty"`
+	NativeNftables bool `protobuf:"varint,74,opt,name=nativeNftables,proto3" json:"nativeNftables,omitempty"`
 	// Settings related to Kubernetes NetworkPolicy.
 	NetworkPolicy *NetworkPolicyConfig `protobuf:"bytes,75,opt,name=networkPolicy,proto3" json:"networkPolicy,omitempty"`
 	// Specifies resource scope for discovery selectors.
@@ -1956,15 +1955,15 @@ func (x *GlobalConfig) GetCertSigners() []string {
 	return nil
 }
 
-func (x *GlobalConfig) GetConfigValidation() *wrapperspb.BoolValue {
+func (x *GlobalConfig) GetConfigValidation() bool {
 	if x != nil {
 		return x.ConfigValidation
 	}
-	return nil
+	return false
 }
 
 // Deprecated: Marked as deprecated in pkg/apis/values_types.proto.
-func (x *GlobalConfig) GetDefaultNodeSelector() *structpb.Struct {
+func (x *GlobalConfig) GetDefaultNodeSelector() map[string]string {
 	if x != nil {
 		return x.DefaultNodeSelector
 	}
@@ -2022,11 +2021,11 @@ func (x *GlobalConfig) GetIstioNamespace() string {
 	return ""
 }
 
-func (x *GlobalConfig) GetLogAsJson() *wrapperspb.BoolValue {
+func (x *GlobalConfig) GetLogAsJson() bool {
 	if x != nil {
 		return x.LogAsJson
 	}
-	return nil
+	return false
 }
 
 func (x *GlobalConfig) GetLogging() *GlobalLoggingConfig {
@@ -2043,7 +2042,7 @@ func (x *GlobalConfig) GetMeshID() string {
 	return ""
 }
 
-func (x *GlobalConfig) GetMeshNetworks() *structpb.Struct {
+func (x *GlobalConfig) GetMeshNetworks() map[string]*structpb.Value {
 	if x != nil {
 		return x.MeshNetworks
 	}
@@ -2071,18 +2070,18 @@ func (x *GlobalConfig) GetPodDNSSearchNamespaces() []string {
 	return nil
 }
 
-func (x *GlobalConfig) GetOmitSidecarInjectorConfigMap() *wrapperspb.BoolValue {
+func (x *GlobalConfig) GetOmitSidecarInjectorConfigMap() bool {
 	if x != nil {
 		return x.OmitSidecarInjectorConfigMap
 	}
-	return nil
+	return false
 }
 
-func (x *GlobalConfig) GetOperatorManageWebhooks() *wrapperspb.BoolValue {
+func (x *GlobalConfig) GetOperatorManageWebhooks() bool {
 	if x != nil {
 		return x.OperatorManageWebhooks
 	}
-	return nil
+	return false
 }
 
 // Deprecated: Marked as deprecated in pkg/apis/values_types.proto.
@@ -2178,11 +2177,11 @@ func (x *GlobalConfig) GetRevision() string {
 	return ""
 }
 
-func (x *GlobalConfig) GetMountMtlsCerts() *wrapperspb.BoolValue {
+func (x *GlobalConfig) GetMountMtlsCerts() bool {
 	if x != nil {
 		return x.MountMtlsCerts
 	}
-	return nil
+	return false
 }
 
 func (x *GlobalConfig) GetCaAddress() string {
@@ -2192,18 +2191,18 @@ func (x *GlobalConfig) GetCaAddress() string {
 	return ""
 }
 
-func (x *GlobalConfig) GetExternalIstiod() *wrapperspb.BoolValue {
+func (x *GlobalConfig) GetExternalIstiod() bool {
 	if x != nil {
 		return x.ExternalIstiod
 	}
-	return nil
+	return false
 }
 
-func (x *GlobalConfig) GetConfigCluster() *wrapperspb.BoolValue {
+func (x *GlobalConfig) GetConfigCluster() bool {
 	if x != nil {
 		return x.ConfigCluster
 	}
-	return nil
+	return false
 }
 
 func (x *GlobalConfig) GetCaName() string {
@@ -2248,11 +2247,11 @@ func (x *GlobalConfig) GetTrustBundleName() string {
 	return ""
 }
 
-func (x *GlobalConfig) GetNativeNftables() *wrapperspb.BoolValue {
+func (x *GlobalConfig) GetNativeNftables() bool {
 	if x != nil {
 		return x.NativeNftables
 	}
-	return nil
+	return false
 }
 
 func (x *GlobalConfig) GetNetworkPolicy() *NetworkPolicyConfig {
@@ -2319,7 +2318,7 @@ func (x *STSConfig) GetServicePort() uint32 {
 type IstiodConfig struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// If enabled, istiod will perform config analysis
-	EnableAnalysis *wrapperspb.BoolValue `protobuf:"bytes,2,opt,name=enableAnalysis,proto3" json:"enableAnalysis,omitempty"`
+	EnableAnalysis bool `protobuf:"varint,2,opt,name=enableAnalysis,proto3" json:"enableAnalysis,omitempty"`
 	unknownFields  protoimpl.UnknownFields
 	sizeCache      protoimpl.SizeCache
 }
@@ -2354,11 +2353,11 @@ func (*IstiodConfig) Descriptor() ([]byte, []int) {
 	return file_pkg_apis_values_types_proto_rawDescGZIP(), []int{15}
 }
 
-func (x *IstiodConfig) GetEnableAnalysis() *wrapperspb.BoolValue {
+func (x *IstiodConfig) GetEnableAnalysis() bool {
 	if x != nil {
 		return x.EnableAnalysis
 	}
-	return nil
+	return false
 }
 
 // GlobalLoggingConfig specifies the global logging level settings for the Istio control plane components.
@@ -2413,7 +2412,7 @@ func (x *GlobalLoggingConfig) GetLevel() string {
 type IngressGatewayConfig struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Controls whether auto scaling with a HorizontalPodAutoscaler is enabled.
-	AutoscaleEnabled *wrapperspb.BoolValue `protobuf:"bytes,1,opt,name=autoscaleEnabled,proto3" json:"autoscaleEnabled,omitempty"`
+	AutoscaleEnabled bool `protobuf:"varint,1,opt,name=autoscaleEnabled,proto3" json:"autoscaleEnabled,omitempty"`
 	// maxReplicas setting for HorizontalPodAutoscaler.
 	AutoscaleMax uint32 `protobuf:"varint,2,opt,name=autoscaleMax,proto3" json:"autoscaleMax,omitempty"`
 	// minReplicas setting for HorizontalPodAutoscaler.
@@ -2430,11 +2429,11 @@ type IngressGatewayConfig struct {
 	//
 	// Deprecated: Marked as deprecated in pkg/apis/values_types.proto.
 	Cpu           *TargetUtilizationConfig `protobuf:"bytes,5,opt,name=cpu,proto3" json:"cpu,omitempty"`
-	CustomService *wrapperspb.BoolValue    `protobuf:"bytes,6,opt,name=customService,proto3" json:"customService,omitempty"`
+	CustomService bool                     `protobuf:"varint,6,opt,name=customService,proto3" json:"customService,omitempty"`
 	// Controls whether an ingress gateway is enabled.
-	Enabled *wrapperspb.BoolValue `protobuf:"bytes,10,opt,name=enabled,proto3" json:"enabled,omitempty"`
+	Enabled bool `protobuf:"varint,10,opt,name=enabled,proto3" json:"enabled,omitempty"`
 	// Environment variables passed to the proxy container.
-	Env                      *structpb.Struct  `protobuf:"bytes,11,opt,name=env,proto3" json:"env,omitempty"`
+	Env                      map[string]string `protobuf:"bytes,11,rep,name=env,proto3" json:"env,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
 	Labels                   map[string]string `protobuf:"bytes,15,rep,name=labels,proto3" json:"labels,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
 	LoadBalancerIP           string            `protobuf:"bytes,16,opt,name=loadBalancerIP,proto3" json:"loadBalancerIP,omitempty"`
 	LoadBalancerSourceRanges []string          `protobuf:"bytes,17,rep,name=loadBalancerSourceRanges,proto3" json:"loadBalancerSourceRanges,omitempty"`
@@ -2444,13 +2443,13 @@ type IngressGatewayConfig struct {
 	// See https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#nodeselector
 	//
 	// Deprecated: Marked as deprecated in pkg/apis/values_types.proto.
-	NodeSelector *structpb.Struct `protobuf:"bytes,19,opt,name=nodeSelector,proto3" json:"nodeSelector,omitempty"`
+	NodeSelector map[string]string `protobuf:"bytes,19,rep,name=nodeSelector,proto3" json:"nodeSelector,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
 	// K8s annotations for pods.
 	//
 	// See: https://kubernetes.io/docs/concepts/overview/working-with-objects/annotations/
 	//
 	// Deprecated: Marked as deprecated in pkg/apis/values_types.proto.
-	PodAnnotations *structpb.Struct `protobuf:"bytes,20,opt,name=podAnnotations,proto3" json:"podAnnotations,omitempty"`
+	PodAnnotations map[string]string `protobuf:"bytes,20,rep,name=podAnnotations,proto3" json:"podAnnotations,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
 	// See EgressGatewayConfig.
 	//
 	// Deprecated: Marked as deprecated in pkg/apis/values_types.proto.
@@ -2470,11 +2469,11 @@ type IngressGatewayConfig struct {
 	// See https://kubernetes.io/docs/concepts/configuration/manage-compute-resources-container/#resource-requests-and-limits-of-pod-and-container
 	//
 	// Deprecated: Marked as deprecated in pkg/apis/values_types.proto.
-	Resources *structpb.Struct `protobuf:"bytes,25,opt,name=resources,proto3" json:"resources,omitempty"`
+	Resources map[string]string `protobuf:"bytes,25,rep,name=resources,proto3" json:"resources,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
 	// Config for secret volume mounts.
 	SecretVolumes []*SecretVolume `protobuf:"bytes,27,rep,name=secretVolumes,proto3" json:"secretVolumes,omitempty"`
 	// Annotations to add to the egress gateway service.
-	ServiceAnnotations *structpb.Struct `protobuf:"bytes,28,opt,name=serviceAnnotations,proto3" json:"serviceAnnotations,omitempty"`
+	ServiceAnnotations map[string]string `protobuf:"bytes,28,rep,name=serviceAnnotations,proto3" json:"serviceAnnotations,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
 	// Service type.
 	//
 	// See https://kubernetes.io/docs/concepts/services-networking/service/#publishing-services-service-types
@@ -2493,11 +2492,11 @@ type IngressGatewayConfig struct {
 	RollingMaxUnavailable *IntOrString `protobuf:"bytes,32,opt,name=rollingMaxUnavailable,proto3" json:"rollingMaxUnavailable,omitempty"`
 	ExternalTrafficPolicy string       `protobuf:"bytes,34,opt,name=externalTrafficPolicy,proto3" json:"externalTrafficPolicy,omitempty"`
 	// Deprecated: Marked as deprecated in pkg/apis/values_types.proto.
-	Tolerations          []*v1.Toleration      `protobuf:"bytes,35,rep,name=tolerations,proto3" json:"tolerations,omitempty"`
-	IngressPorts         []*structpb.Struct    `protobuf:"bytes,36,rep,name=ingressPorts,proto3" json:"ingressPorts,omitempty"`
-	AdditionalContainers []*structpb.Struct    `protobuf:"bytes,37,rep,name=additionalContainers,proto3" json:"additionalContainers,omitempty"`
-	ConfigVolumes        []*structpb.Struct    `protobuf:"bytes,38,rep,name=configVolumes,proto3" json:"configVolumes,omitempty"`
-	RunAsRoot            *wrapperspb.BoolValue `protobuf:"bytes,45,opt,name=runAsRoot,proto3" json:"runAsRoot,omitempty"`
+	Tolerations          []*v1.Toleration           `protobuf:"bytes,35,rep,name=tolerations,proto3" json:"tolerations,omitempty"`
+	IngressPorts         map[string]*structpb.Value `protobuf:"bytes,36,rep,name=ingressPorts,proto3" json:"ingressPorts,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	AdditionalContainers map[string]*structpb.Value `protobuf:"bytes,37,rep,name=additionalContainers,proto3" json:"additionalContainers,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	ConfigVolumes        map[string]*structpb.Value `protobuf:"bytes,38,rep,name=configVolumes,proto3" json:"configVolumes,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	RunAsRoot            bool                       `protobuf:"varint,45,opt,name=runAsRoot,proto3" json:"runAsRoot,omitempty"`
 	// The injection template to use for the gateway. If not set, no injection will be performed.
 	InjectionTemplate string          `protobuf:"bytes,46,opt,name=injectionTemplate,proto3" json:"injectionTemplate,omitempty"`
 	ServiceAccount    *ServiceAccount `protobuf:"bytes,47,opt,name=serviceAccount,proto3" json:"serviceAccount,omitempty"`
@@ -2543,11 +2542,11 @@ func (*IngressGatewayConfig) Descriptor() ([]byte, []int) {
 	return file_pkg_apis_values_types_proto_rawDescGZIP(), []int{17}
 }
 
-func (x *IngressGatewayConfig) GetAutoscaleEnabled() *wrapperspb.BoolValue {
+func (x *IngressGatewayConfig) GetAutoscaleEnabled() bool {
 	if x != nil {
 		return x.AutoscaleEnabled
 	}
-	return nil
+	return false
 }
 
 func (x *IngressGatewayConfig) GetAutoscaleMax() uint32 {
@@ -2580,21 +2579,21 @@ func (x *IngressGatewayConfig) GetCpu() *TargetUtilizationConfig {
 	return nil
 }
 
-func (x *IngressGatewayConfig) GetCustomService() *wrapperspb.BoolValue {
+func (x *IngressGatewayConfig) GetCustomService() bool {
 	if x != nil {
 		return x.CustomService
 	}
-	return nil
+	return false
 }
 
-func (x *IngressGatewayConfig) GetEnabled() *wrapperspb.BoolValue {
+func (x *IngressGatewayConfig) GetEnabled() bool {
 	if x != nil {
 		return x.Enabled
 	}
-	return nil
+	return false
 }
 
-func (x *IngressGatewayConfig) GetEnv() *structpb.Struct {
+func (x *IngressGatewayConfig) GetEnv() map[string]string {
 	if x != nil {
 		return x.Env
 	}
@@ -2630,7 +2629,7 @@ func (x *IngressGatewayConfig) GetName() string {
 }
 
 // Deprecated: Marked as deprecated in pkg/apis/values_types.proto.
-func (x *IngressGatewayConfig) GetNodeSelector() *structpb.Struct {
+func (x *IngressGatewayConfig) GetNodeSelector() map[string]string {
 	if x != nil {
 		return x.NodeSelector
 	}
@@ -2638,7 +2637,7 @@ func (x *IngressGatewayConfig) GetNodeSelector() *structpb.Struct {
 }
 
 // Deprecated: Marked as deprecated in pkg/apis/values_types.proto.
-func (x *IngressGatewayConfig) GetPodAnnotations() *structpb.Struct {
+func (x *IngressGatewayConfig) GetPodAnnotations() map[string]string {
 	if x != nil {
 		return x.PodAnnotations
 	}
@@ -2677,7 +2676,7 @@ func (x *IngressGatewayConfig) GetReplicaCount() uint32 {
 }
 
 // Deprecated: Marked as deprecated in pkg/apis/values_types.proto.
-func (x *IngressGatewayConfig) GetResources() *structpb.Struct {
+func (x *IngressGatewayConfig) GetResources() map[string]string {
 	if x != nil {
 		return x.Resources
 	}
@@ -2691,7 +2690,7 @@ func (x *IngressGatewayConfig) GetSecretVolumes() []*SecretVolume {
 	return nil
 }
 
-func (x *IngressGatewayConfig) GetServiceAnnotations() *structpb.Struct {
+func (x *IngressGatewayConfig) GetServiceAnnotations() map[string]string {
 	if x != nil {
 		return x.ServiceAnnotations
 	}
@@ -2736,32 +2735,32 @@ func (x *IngressGatewayConfig) GetTolerations() []*v1.Toleration {
 	return nil
 }
 
-func (x *IngressGatewayConfig) GetIngressPorts() []*structpb.Struct {
+func (x *IngressGatewayConfig) GetIngressPorts() map[string]*structpb.Value {
 	if x != nil {
 		return x.IngressPorts
 	}
 	return nil
 }
 
-func (x *IngressGatewayConfig) GetAdditionalContainers() []*structpb.Struct {
+func (x *IngressGatewayConfig) GetAdditionalContainers() map[string]*structpb.Value {
 	if x != nil {
 		return x.AdditionalContainers
 	}
 	return nil
 }
 
-func (x *IngressGatewayConfig) GetConfigVolumes() []*structpb.Struct {
+func (x *IngressGatewayConfig) GetConfigVolumes() map[string]*structpb.Value {
 	if x != nil {
 		return x.ConfigVolumes
 	}
 	return nil
 }
 
-func (x *IngressGatewayConfig) GetRunAsRoot() *wrapperspb.BoolValue {
+func (x *IngressGatewayConfig) GetRunAsRoot() bool {
 	if x != nil {
 		return x.RunAsRoot
 	}
-	return nil
+	return false
 }
 
 func (x *IngressGatewayConfig) GetInjectionTemplate() string {
@@ -2797,14 +2796,14 @@ type MultiClusterConfig struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Enables the connection between two kubernetes clusters via their respective ingressgateway services.
 	// Use if the pods in each cluster cannot directly talk to one another.
-	Enabled *wrapperspb.BoolValue `protobuf:"bytes,1,opt,name=enabled,proto3" json:"enabled,omitempty"`
+	Enabled bool `protobuf:"varint,1,opt,name=enabled,proto3" json:"enabled,omitempty"`
 	// The name of the cluster this installation will run in. This is required for sidecar injection
 	// to properly label proxies
 	ClusterName string `protobuf:"bytes,2,opt,name=clusterName,proto3" json:"clusterName,omitempty"`
 	// The suffix for global service names.
 	GlobalDomainSuffix string `protobuf:"bytes,3,opt,name=globalDomainSuffix,proto3" json:"globalDomainSuffix,omitempty"`
 	// Enable envoy filter to translate `globalDomainSuffix` to cluster local suffix for cross cluster communication.
-	IncludeEnvoyFilter *wrapperspb.BoolValue `protobuf:"bytes,4,opt,name=includeEnvoyFilter,proto3" json:"includeEnvoyFilter,omitempty"`
+	IncludeEnvoyFilter bool `protobuf:"varint,4,opt,name=includeEnvoyFilter,proto3" json:"includeEnvoyFilter,omitempty"`
 	unknownFields      protoimpl.UnknownFields
 	sizeCache          protoimpl.SizeCache
 }
@@ -2839,11 +2838,11 @@ func (*MultiClusterConfig) Descriptor() ([]byte, []int) {
 	return file_pkg_apis_values_types_proto_rawDescGZIP(), []int{18}
 }
 
-func (x *MultiClusterConfig) GetEnabled() *wrapperspb.BoolValue {
+func (x *MultiClusterConfig) GetEnabled() bool {
 	if x != nil {
 		return x.Enabled
 	}
-	return nil
+	return false
 }
 
 func (x *MultiClusterConfig) GetClusterName() string {
@@ -2860,11 +2859,11 @@ func (x *MultiClusterConfig) GetGlobalDomainSuffix() string {
 	return ""
 }
 
-func (x *MultiClusterConfig) GetIncludeEnvoyFilter() *wrapperspb.BoolValue {
+func (x *MultiClusterConfig) GetIncludeEnvoyFilter() bool {
 	if x != nil {
 		return x.IncludeEnvoyFilter
 	}
-	return nil
+	return false
 }
 
 // OutboundTrafficPolicyConfig controls the default behavior of the sidecar for handling outbound traffic from the application.
@@ -2916,15 +2915,15 @@ func (x *OutboundTrafficPolicyConfig) GetMode() OutboundTrafficPolicyConfig_Mode
 type PilotConfig struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Controls whether Pilot is enabled.
-	Enabled *wrapperspb.BoolValue `protobuf:"bytes,1,opt,name=enabled,proto3" json:"enabled,omitempty"`
+	Enabled bool `protobuf:"varint,1,opt,name=enabled,proto3" json:"enabled,omitempty"`
 	// Controls whether a HorizontalPodAutoscaler is installed for Pilot.
-	AutoscaleEnabled *wrapperspb.BoolValue `protobuf:"bytes,2,opt,name=autoscaleEnabled,proto3" json:"autoscaleEnabled,omitempty"`
+	AutoscaleEnabled bool `protobuf:"varint,2,opt,name=autoscaleEnabled,proto3" json:"autoscaleEnabled,omitempty"`
 	// Minimum number of replicas in the HorizontalPodAutoscaler for Pilot.
 	AutoscaleMin uint32 `protobuf:"varint,3,opt,name=autoscaleMin,proto3" json:"autoscaleMin,omitempty"`
 	// Maximum number of replicas in the HorizontalPodAutoscaler for Pilot.
 	AutoscaleMax uint32 `protobuf:"varint,4,opt,name=autoscaleMax,proto3" json:"autoscaleMax,omitempty"`
 	// See https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/#configurable-scaling-behavior
-	AutoscaleBehavior *structpb.Struct `protobuf:"bytes,40,opt,name=autoscaleBehavior,proto3" json:"autoscaleBehavior,omitempty"`
+	AutoscaleBehavior map[string]*structpb.Value `protobuf:"bytes,40,rep,name=autoscaleBehavior,proto3" json:"autoscaleBehavior,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
 	// Number of replicas in the Pilot Deployment.
 	//
 	// Deprecated: Marked as deprecated in pkg/apis/values_types.proto.
@@ -2958,26 +2957,26 @@ type PilotConfig struct {
 	// See https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#nodeselector
 	//
 	// Deprecated: Marked as deprecated in pkg/apis/values_types.proto.
-	NodeSelector *structpb.Struct `protobuf:"bytes,12,opt,name=nodeSelector,proto3" json:"nodeSelector,omitempty"`
+	NodeSelector map[string]string `protobuf:"bytes,12,rep,name=nodeSelector,proto3" json:"nodeSelector,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
 	// Maximum duration that a sidecar can be connected to a pilot.
 	//
 	// This setting balances out load across pilot instances, but adds some resource overhead.
 	//
 	// Examples: 300s, 30m, 1h
-	KeepaliveMaxServerConnectionAge *durationpb.Duration `protobuf:"bytes,13,opt,name=keepaliveMaxServerConnectionAge,proto3" json:"keepaliveMaxServerConnectionAge,omitempty"`
+	KeepaliveMaxServerConnectionAge *v11.Duration `protobuf:"bytes,13,opt,name=keepaliveMaxServerConnectionAge,proto3" json:"keepaliveMaxServerConnectionAge,omitempty"`
 	// Labels that are added to Pilot deployment.
 	//
 	// See https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/
-	DeploymentLabels *structpb.Struct `protobuf:"bytes,14,opt,name=deploymentLabels,proto3" json:"deploymentLabels,omitempty"`
+	DeploymentLabels map[string]string `protobuf:"bytes,14,rep,name=deploymentLabels,proto3" json:"deploymentLabels,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
 	// Labels that are added to Pilot pods.
 	//
 	// See https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/
-	PodLabels *structpb.Struct `protobuf:"bytes,36,opt,name=podLabels,proto3" json:"podLabels,omitempty"`
+	PodLabels map[string]string `protobuf:"bytes,36,rep,name=podLabels,proto3" json:"podLabels,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
 	// Configuration settings passed to Pilot as a ConfigMap.
 	//
 	// This controls whether the mesh config map, generated from values.yaml is generated.
 	// If false, pilot wil use default values or user-supplied values, in that order of preference.
-	ConfigMap *wrapperspb.BoolValue `protobuf:"bytes,18,opt,name=configMap,proto3" json:"configMap,omitempty"`
+	ConfigMap bool `protobuf:"varint,18,opt,name=configMap,proto3" json:"configMap,omitempty"`
 	// Environment variables passed to the Pilot container.
 	//
 	// Examples:
@@ -2985,7 +2984,7 @@ type PilotConfig struct {
 	//
 	//	ENV_VAR_1: value1
 	//	ENV_VAR_2: value2
-	Env *structpb.Struct `protobuf:"bytes,21,opt,name=env,proto3" json:"env,omitempty"`
+	Env map[string]string `protobuf:"bytes,21,rep,name=env,proto3" json:"env,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
 	// K8s affinity to set on the Pilot Pods.
 	Affinity *v1.Affinity `protobuf:"bytes,22,opt,name=affinity,proto3" json:"affinity,omitempty"`
 	// K8s rolling update strategy
@@ -3011,13 +3010,13 @@ type PilotConfig struct {
 	// See: https://kubernetes.io/docs/concepts/overview/working-with-objects/annotations/
 	//
 	// Deprecated: Marked as deprecated in pkg/apis/values_types.proto.
-	PodAnnotations *structpb.Struct `protobuf:"bytes,30,opt,name=podAnnotations,proto3" json:"podAnnotations,omitempty"`
+	PodAnnotations map[string]string `protobuf:"bytes,30,rep,name=podAnnotations,proto3" json:"podAnnotations,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
 	// K8s annotations for the Service.
 	//
 	// See: https://kubernetes.io/docs/concepts/overview/working-with-objects/annotations/
-	ServiceAnnotations *structpb.Struct `protobuf:"bytes,37,opt,name=serviceAnnotations,proto3" json:"serviceAnnotations,omitempty"`
+	ServiceAnnotations map[string]string `protobuf:"bytes,37,rep,name=serviceAnnotations,proto3" json:"serviceAnnotations,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
 	// K8s annotations for the service account
-	ServiceAccountAnnotations *structpb.Struct `protobuf:"bytes,56,opt,name=serviceAccountAnnotations,proto3" json:"serviceAccountAnnotations,omitempty"`
+	ServiceAccountAnnotations map[string]string `protobuf:"bytes,56,rep,name=serviceAccountAnnotations,proto3" json:"serviceAccountAnnotations,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
 	// Specifies an extra root certificate in PEM format. This certificate will be trusted
 	// by pilot when resolving JWKS URIs.
 	JwksResolverExtraRootCA string `protobuf:"bytes,32,opt,name=jwksResolverExtraRootCA,proto3" json:"jwksResolverExtraRootCA,omitempty"`
@@ -3034,7 +3033,7 @@ type PilotConfig struct {
 	// The k8s topologySpreadConstraints for the Pilot pods.
 	TopologySpreadConstraints []*v1.TopologySpreadConstraint `protobuf:"bytes,41,rep,name=topologySpreadConstraints,proto3" json:"topologySpreadConstraints,omitempty"`
 	// Additional container arguments for the Pilot container.
-	ExtraContainerArgs []*structpb.Struct `protobuf:"bytes,42,rep,name=extraContainerArgs,proto3" json:"extraContainerArgs,omitempty"`
+	ExtraContainerArgs map[string]*structpb.Value `protobuf:"bytes,42,rep,name=extraContainerArgs,proto3" json:"extraContainerArgs,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
 	// Additional volumeMounts to add to the Pilot container.
 	VolumeMounts []*v1.VolumeMount `protobuf:"bytes,49,rep,name=volumeMounts,proto3" json:"volumeMounts,omitempty"`
 	// Additional volumes to add to the Pilot Pod.
@@ -3062,7 +3061,7 @@ type PilotConfig struct {
 	// Configuration for the istio-discovery chart when istiod is running in a remote cluster (e.g. "remote control plane").
 	IstiodRemote *IstiodRemoteConfig `protobuf:"bytes,61,opt,name=istiodRemote,proto3" json:"istiodRemote,omitempty"`
 	// Configuration for the istio-discovery chart
-	EnvVarFrom    []*structpb.Struct `protobuf:"bytes,62,rep,name=envVarFrom,proto3" json:"envVarFrom,omitempty"`
+	EnvVarFrom    map[string]*structpb.Value `protobuf:"bytes,62,rep,name=envVarFrom,proto3" json:"envVarFrom,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -3097,18 +3096,18 @@ func (*PilotConfig) Descriptor() ([]byte, []int) {
 	return file_pkg_apis_values_types_proto_rawDescGZIP(), []int{20}
 }
 
-func (x *PilotConfig) GetEnabled() *wrapperspb.BoolValue {
+func (x *PilotConfig) GetEnabled() bool {
 	if x != nil {
 		return x.Enabled
 	}
-	return nil
+	return false
 }
 
-func (x *PilotConfig) GetAutoscaleEnabled() *wrapperspb.BoolValue {
+func (x *PilotConfig) GetAutoscaleEnabled() bool {
 	if x != nil {
 		return x.AutoscaleEnabled
 	}
-	return nil
+	return false
 }
 
 func (x *PilotConfig) GetAutoscaleMin() uint32 {
@@ -3125,7 +3124,7 @@ func (x *PilotConfig) GetAutoscaleMax() uint32 {
 	return 0
 }
 
-func (x *PilotConfig) GetAutoscaleBehavior() *structpb.Struct {
+func (x *PilotConfig) GetAutoscaleBehavior() map[string]*structpb.Value {
 	if x != nil {
 		return x.AutoscaleBehavior
 	}
@@ -3171,42 +3170,42 @@ func (x *PilotConfig) GetCpu() *TargetUtilizationConfig {
 }
 
 // Deprecated: Marked as deprecated in pkg/apis/values_types.proto.
-func (x *PilotConfig) GetNodeSelector() *structpb.Struct {
+func (x *PilotConfig) GetNodeSelector() map[string]string {
 	if x != nil {
 		return x.NodeSelector
 	}
 	return nil
 }
 
-func (x *PilotConfig) GetKeepaliveMaxServerConnectionAge() *durationpb.Duration {
+func (x *PilotConfig) GetKeepaliveMaxServerConnectionAge() *v11.Duration {
 	if x != nil {
 		return x.KeepaliveMaxServerConnectionAge
 	}
 	return nil
 }
 
-func (x *PilotConfig) GetDeploymentLabels() *structpb.Struct {
+func (x *PilotConfig) GetDeploymentLabels() map[string]string {
 	if x != nil {
 		return x.DeploymentLabels
 	}
 	return nil
 }
 
-func (x *PilotConfig) GetPodLabels() *structpb.Struct {
+func (x *PilotConfig) GetPodLabels() map[string]string {
 	if x != nil {
 		return x.PodLabels
 	}
 	return nil
 }
 
-func (x *PilotConfig) GetConfigMap() *wrapperspb.BoolValue {
+func (x *PilotConfig) GetConfigMap() bool {
 	if x != nil {
 		return x.ConfigMap
 	}
-	return nil
+	return false
 }
 
-func (x *PilotConfig) GetEnv() *structpb.Struct {
+func (x *PilotConfig) GetEnv() map[string]string {
 	if x != nil {
 		return x.Env
 	}
@@ -3245,21 +3244,21 @@ func (x *PilotConfig) GetTolerations() []*v1.Toleration {
 }
 
 // Deprecated: Marked as deprecated in pkg/apis/values_types.proto.
-func (x *PilotConfig) GetPodAnnotations() *structpb.Struct {
+func (x *PilotConfig) GetPodAnnotations() map[string]string {
 	if x != nil {
 		return x.PodAnnotations
 	}
 	return nil
 }
 
-func (x *PilotConfig) GetServiceAnnotations() *structpb.Struct {
+func (x *PilotConfig) GetServiceAnnotations() map[string]string {
 	if x != nil {
 		return x.ServiceAnnotations
 	}
 	return nil
 }
 
-func (x *PilotConfig) GetServiceAccountAnnotations() *structpb.Struct {
+func (x *PilotConfig) GetServiceAccountAnnotations() map[string]string {
 	if x != nil {
 		return x.ServiceAccountAnnotations
 	}
@@ -3308,7 +3307,7 @@ func (x *PilotConfig) GetTopologySpreadConstraints() []*v1.TopologySpreadConstra
 	return nil
 }
 
-func (x *PilotConfig) GetExtraContainerArgs() []*structpb.Struct {
+func (x *PilotConfig) GetExtraContainerArgs() map[string]*structpb.Value {
 	if x != nil {
 		return x.ExtraContainerArgs
 	}
@@ -3379,7 +3378,7 @@ func (x *PilotConfig) GetIstiodRemote() *IstiodRemoteConfig {
 	return nil
 }
 
-func (x *PilotConfig) GetEnvVarFrom() []*structpb.Struct {
+func (x *PilotConfig) GetEnvVarFrom() map[string]*structpb.Value {
 	if x != nil {
 		return x.EnvVarFrom
 	}
@@ -3513,7 +3512,7 @@ func (x *PilotIngressConfig) GetIngressClass() string {
 type PilotPolicyConfig struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Controls whether Istio policy is applied to Pilot.
-	Enabled       *wrapperspb.BoolValue `protobuf:"bytes,1,opt,name=enabled,proto3" json:"enabled,omitempty"`
+	Enabled       bool `protobuf:"varint,1,opt,name=enabled,proto3" json:"enabled,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -3548,18 +3547,18 @@ func (*PilotPolicyConfig) Descriptor() ([]byte, []int) {
 	return file_pkg_apis_values_types_proto_rawDescGZIP(), []int{23}
 }
 
-func (x *PilotPolicyConfig) GetEnabled() *wrapperspb.BoolValue {
+func (x *PilotPolicyConfig) GetEnabled() bool {
 	if x != nil {
 		return x.Enabled
 	}
-	return nil
+	return false
 }
 
 // Controls telemetry configuration
 type TelemetryConfig struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Controls whether telemetry is exported for Pilot.
-	Enabled *wrapperspb.BoolValue `protobuf:"bytes,1,opt,name=enabled,proto3" json:"enabled,omitempty"`
+	Enabled bool `protobuf:"varint,1,opt,name=enabled,proto3" json:"enabled,omitempty"`
 	// Configuration for Telemetry v2.
 	V2            *TelemetryV2Config `protobuf:"bytes,3,opt,name=v2,proto3" json:"v2,omitempty"`
 	unknownFields protoimpl.UnknownFields
@@ -3596,11 +3595,11 @@ func (*TelemetryConfig) Descriptor() ([]byte, []int) {
 	return file_pkg_apis_values_types_proto_rawDescGZIP(), []int{24}
 }
 
-func (x *TelemetryConfig) GetEnabled() *wrapperspb.BoolValue {
+func (x *TelemetryConfig) GetEnabled() bool {
 	if x != nil {
 		return x.Enabled
 	}
-	return nil
+	return false
 }
 
 func (x *TelemetryConfig) GetV2() *TelemetryV2Config {
@@ -3614,7 +3613,7 @@ func (x *TelemetryConfig) GetV2() *TelemetryV2Config {
 type TelemetryV2Config struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Controls whether pilot will configure telemetry v2.
-	Enabled *wrapperspb.BoolValue `protobuf:"bytes,1,opt,name=enabled,proto3" json:"enabled,omitempty"`
+	Enabled bool `protobuf:"varint,1,opt,name=enabled,proto3" json:"enabled,omitempty"`
 	// Telemetry v2 settings for prometheus.
 	Prometheus *TelemetryV2PrometheusConfig `protobuf:"bytes,2,opt,name=prometheus,proto3" json:"prometheus,omitempty"`
 	// Telemetry v2 settings for stackdriver.
@@ -3653,11 +3652,11 @@ func (*TelemetryV2Config) Descriptor() ([]byte, []int) {
 	return file_pkg_apis_values_types_proto_rawDescGZIP(), []int{25}
 }
 
-func (x *TelemetryV2Config) GetEnabled() *wrapperspb.BoolValue {
+func (x *TelemetryV2Config) GetEnabled() bool {
 	if x != nil {
 		return x.Enabled
 	}
-	return nil
+	return false
 }
 
 func (x *TelemetryV2Config) GetPrometheus() *TelemetryV2PrometheusConfig {
@@ -3678,7 +3677,7 @@ func (x *TelemetryV2Config) GetStackdriver() *TelemetryV2StackDriverConfig {
 type TelemetryV2PrometheusConfig struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Controls whether stats envoyfilter would be enabled or not.
-	Enabled       *wrapperspb.BoolValue `protobuf:"bytes,1,opt,name=enabled,proto3" json:"enabled,omitempty"`
+	Enabled       bool `protobuf:"varint,1,opt,name=enabled,proto3" json:"enabled,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -3713,17 +3712,17 @@ func (*TelemetryV2PrometheusConfig) Descriptor() ([]byte, []int) {
 	return file_pkg_apis_values_types_proto_rawDescGZIP(), []int{26}
 }
 
-func (x *TelemetryV2PrometheusConfig) GetEnabled() *wrapperspb.BoolValue {
+func (x *TelemetryV2PrometheusConfig) GetEnabled() bool {
 	if x != nil {
 		return x.Enabled
 	}
-	return nil
+	return false
 }
 
 // TelemetryV2StackDriverConfig controls telemetry v2 stackdriver settings.
 type TelemetryV2StackDriverConfig struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Enabled       *wrapperspb.BoolValue  `protobuf:"bytes,1,opt,name=enabled,proto3" json:"enabled,omitempty"`
+	Enabled       bool                   `protobuf:"varint,1,opt,name=enabled,proto3" json:"enabled,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -3758,11 +3757,11 @@ func (*TelemetryV2StackDriverConfig) Descriptor() ([]byte, []int) {
 	return file_pkg_apis_values_types_proto_rawDescGZIP(), []int{27}
 }
 
-func (x *TelemetryV2StackDriverConfig) GetEnabled() *wrapperspb.BoolValue {
+func (x *TelemetryV2StackDriverConfig) GetEnabled() bool {
 	if x != nil {
 		return x.Enabled
 	}
-	return nil
+	return false
 }
 
 // Configuration for a port.
@@ -3865,7 +3864,7 @@ type ProxyConfig struct {
 	// If set, newly injected sidecars will have core dumps enabled.
 	//
 	// Deprecated: Marked as deprecated in pkg/apis/values_types.proto.
-	EnableCoreDump *wrapperspb.BoolValue `protobuf:"bytes,9,opt,name=enableCoreDump,proto3" json:"enableCoreDump,omitempty"`
+	EnableCoreDump bool `protobuf:"varint,9,opt,name=enableCoreDump,proto3" json:"enableCoreDump,omitempty"`
 	// Specifies the Istio ingress ports not to capture.
 	ExcludeInboundPorts string `protobuf:"bytes,12,opt,name=excludeInboundPorts,proto3" json:"excludeInboundPorts,omitempty"`
 	// Lists the excluded IP ranges of Istio egress traffic that the sidecar captures.
@@ -3891,7 +3890,7 @@ type ProxyConfig struct {
 	// Enables privileged securityContext for the istio-proxy container.
 	//
 	// See https://kubernetes.io/docs/tasks/configure-pod-container/security-context/
-	Privileged *wrapperspb.BoolValue `protobuf:"bytes,19,opt,name=privileged,proto3" json:"privileged,omitempty"`
+	Privileged bool `protobuf:"varint,19,opt,name=privileged,proto3" json:"privileged,omitempty"`
 	// Sets the initial delay for readiness probes in seconds.
 	ReadinessInitialDelaySeconds uint32 `protobuf:"varint,20,opt,name=readinessInitialDelaySeconds,proto3" json:"readinessInitialDelaySeconds,omitempty"`
 	// Sets the interval between readiness probes in seconds.
@@ -3921,7 +3920,7 @@ type ProxyConfig struct {
 	// Deprecated: replaced by ProxyConfig setting which allows per-pod configuration of this behavior.
 	//
 	// Deprecated: Marked as deprecated in pkg/apis/values_types.proto.
-	HoldApplicationUntilProxyStarts *wrapperspb.BoolValue `protobuf:"bytes,37,opt,name=holdApplicationUntilProxyStarts,proto3" json:"holdApplicationUntilProxyStarts,omitempty"`
+	HoldApplicationUntilProxyStarts bool `protobuf:"varint,37,opt,name=holdApplicationUntilProxyStarts,proto3" json:"holdApplicationUntilProxyStarts,omitempty"`
 	// A comma separated list of inbound ports for which traffic is to be redirected to Envoy.
 	// The wildcard character '*' can be used to configure redirection for all ports.
 	IncludeInboundPorts string `protobuf:"bytes,38,opt,name=includeInboundPorts,proto3" json:"includeInboundPorts,omitempty"`
@@ -3983,11 +3982,11 @@ func (x *ProxyConfig) GetComponentLogLevel() string {
 }
 
 // Deprecated: Marked as deprecated in pkg/apis/values_types.proto.
-func (x *ProxyConfig) GetEnableCoreDump() *wrapperspb.BoolValue {
+func (x *ProxyConfig) GetEnableCoreDump() bool {
 	if x != nil {
 		return x.EnableCoreDump
 	}
-	return nil
+	return false
 }
 
 func (x *ProxyConfig) GetExcludeInboundPorts() string {
@@ -4032,11 +4031,11 @@ func (x *ProxyConfig) GetOutlierLogPath() string {
 	return ""
 }
 
-func (x *ProxyConfig) GetPrivileged() *wrapperspb.BoolValue {
+func (x *ProxyConfig) GetPrivileged() bool {
 	if x != nil {
 		return x.Privileged
 	}
-	return nil
+	return false
 }
 
 func (x *ProxyConfig) GetReadinessInitialDelaySeconds() uint32 {
@@ -4104,11 +4103,11 @@ func (x *ProxyConfig) GetLifecycle() *v1.Lifecycle {
 }
 
 // Deprecated: Marked as deprecated in pkg/apis/values_types.proto.
-func (x *ProxyConfig) GetHoldApplicationUntilProxyStarts() *wrapperspb.BoolValue {
+func (x *ProxyConfig) GetHoldApplicationUntilProxyStarts() bool {
 	if x != nil {
 		return x.HoldApplicationUntilProxyStarts
 	}
-	return nil
+	return false
 }
 
 func (x *ProxyConfig) GetIncludeInboundPorts() string {
@@ -4136,7 +4135,7 @@ type StartupProbe struct {
 	//
 	// If the probe is disabled, it is recommended to have delay=1s,period=2s,failureThreshold=30.
 	// This ensures the startup is reasonable fast (polling every 2s). 1s delay is used since the startup is not often ready instantly.
-	Enabled *wrapperspb.BoolValue `protobuf:"bytes,1,opt,name=enabled,proto3" json:"enabled,omitempty"`
+	Enabled bool `protobuf:"varint,1,opt,name=enabled,proto3" json:"enabled,omitempty"`
 	// Minimum consecutive failures for the probe to be considered failed after having succeeded.
 	FailureThreshold uint32 `protobuf:"varint,2,opt,name=failureThreshold,proto3" json:"failureThreshold,omitempty"`
 	unknownFields    protoimpl.UnknownFields
@@ -4173,11 +4172,11 @@ func (*StartupProbe) Descriptor() ([]byte, []int) {
 	return file_pkg_apis_values_types_proto_rawDescGZIP(), []int{30}
 }
 
-func (x *StartupProbe) GetEnabled() *wrapperspb.BoolValue {
+func (x *StartupProbe) GetEnabled() bool {
 	if x != nil {
 		return x.Enabled
 	}
-	return nil
+	return false
 }
 
 func (x *StartupProbe) GetFailureThreshold() uint32 {
@@ -4306,7 +4305,7 @@ func (x *ResourcesRequestsConfig) GetMemory() string {
 type SDSConfig struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Deprecated: Marked as deprecated in pkg/apis/values_types.proto.
-	Token         *structpb.Struct `protobuf:"bytes,5,opt,name=token,proto3" json:"token,omitempty"`
+	Token         map[string]*structpb.Value `protobuf:"bytes,5,rep,name=token,proto3" json:"token,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -4342,7 +4341,7 @@ func (*SDSConfig) Descriptor() ([]byte, []int) {
 }
 
 // Deprecated: Marked as deprecated in pkg/apis/values_types.proto.
-func (x *SDSConfig) GetToken() *structpb.Struct {
+func (x *SDSConfig) GetToken() map[string]*structpb.Value {
 	if x != nil {
 		return x.Token
 	}
@@ -4416,7 +4415,7 @@ func (x *SecretVolume) GetSecretName() string {
 type SidecarInjectorConfig struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Enables sidecar auto-injection in namespaces by default.
-	EnableNamespacesByDefault *wrapperspb.BoolValue `protobuf:"bytes,2,opt,name=enableNamespacesByDefault,proto3" json:"enableNamespacesByDefault,omitempty"`
+	EnableNamespacesByDefault bool `protobuf:"varint,2,opt,name=enableNamespacesByDefault,proto3" json:"enableNamespacesByDefault,omitempty"`
 	// Setting this to `IfNeeded` will result in the sidecar injector being run again if additional mutations occur. Default: Never
 	ReinvocationPolicy string `protobuf:"bytes,3,opt,name=reinvocationPolicy,proto3" json:"reinvocationPolicy,omitempty"`
 	// Instructs Istio to not inject the sidecar on those pods, based on labels that are present in those pods.
@@ -4428,10 +4427,10 @@ type SidecarInjectorConfig struct {
 	// See NeverInjectSelector.
 	AlwaysInjectSelector []*v11.LabelSelector `protobuf:"bytes,12,rep,name=alwaysInjectSelector,proto3" json:"alwaysInjectSelector,omitempty"`
 	// If true, webhook or istioctl injector will rewrite PodSpec for liveness health check to redirect request to sidecar. This makes liveness check work even when mTLS is enabled.
-	RewriteAppHTTPProbe *wrapperspb.BoolValue `protobuf:"bytes,16,opt,name=rewriteAppHTTPProbe,proto3" json:"rewriteAppHTTPProbe,omitempty"`
+	RewriteAppHTTPProbe bool `protobuf:"varint,16,opt,name=rewriteAppHTTPProbe,proto3" json:"rewriteAppHTTPProbe,omitempty"`
 	// injectedAnnotations are additional annotations that will be added to the pod spec after injection
 	// This is primarily to support PSP annotations.
-	InjectedAnnotations *structpb.Struct `protobuf:"bytes,19,opt,name=injectedAnnotations,proto3" json:"injectedAnnotations,omitempty"`
+	InjectedAnnotations map[string]string `protobuf:"bytes,19,rep,name=injectedAnnotations,proto3" json:"injectedAnnotations,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
 	// Configure the injection url for sidecar injector webhook
 	InjectionURL string `protobuf:"bytes,22,opt,name=injectionURL,proto3" json:"injectionURL,omitempty"`
 	// Templates defines a set of custom injection templates that can be used. For example, defining:
@@ -4446,7 +4445,7 @@ type SidecarInjectorConfig struct {
 	// Then starting a pod with the `inject.istio.io/templates: hello` annotation, will result in the pod
 	// being injected with the hello=world labels.
 	// This is intended for advanced configuration only; most users should use the built in template
-	Templates *structpb.Struct `protobuf:"bytes,23,opt,name=templates,proto3" json:"templates,omitempty"`
+	Templates map[string]*structpb.Value `protobuf:"bytes,23,rep,name=templates,proto3" json:"templates,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
 	// defaultTemplates: ["sidecar", "hello"]
 	DefaultTemplates []string `protobuf:"bytes,24,rep,name=defaultTemplates,proto3" json:"defaultTemplates,omitempty"`
 	unknownFields    protoimpl.UnknownFields
@@ -4483,11 +4482,11 @@ func (*SidecarInjectorConfig) Descriptor() ([]byte, []int) {
 	return file_pkg_apis_values_types_proto_rawDescGZIP(), []int{35}
 }
 
-func (x *SidecarInjectorConfig) GetEnableNamespacesByDefault() *wrapperspb.BoolValue {
+func (x *SidecarInjectorConfig) GetEnableNamespacesByDefault() bool {
 	if x != nil {
 		return x.EnableNamespacesByDefault
 	}
-	return nil
+	return false
 }
 
 func (x *SidecarInjectorConfig) GetReinvocationPolicy() string {
@@ -4511,14 +4510,14 @@ func (x *SidecarInjectorConfig) GetAlwaysInjectSelector() []*v11.LabelSelector {
 	return nil
 }
 
-func (x *SidecarInjectorConfig) GetRewriteAppHTTPProbe() *wrapperspb.BoolValue {
+func (x *SidecarInjectorConfig) GetRewriteAppHTTPProbe() bool {
 	if x != nil {
 		return x.RewriteAppHTTPProbe
 	}
-	return nil
+	return false
 }
 
-func (x *SidecarInjectorConfig) GetInjectedAnnotations() *structpb.Struct {
+func (x *SidecarInjectorConfig) GetInjectedAnnotations() map[string]string {
 	if x != nil {
 		return x.InjectedAnnotations
 	}
@@ -4532,7 +4531,7 @@ func (x *SidecarInjectorConfig) GetInjectionURL() string {
 	return ""
 }
 
-func (x *SidecarInjectorConfig) GetTemplates() *structpb.Struct {
+func (x *SidecarInjectorConfig) GetTemplates() map[string]*structpb.Value {
 	if x != nil {
 		return x.Templates
 	}
@@ -4772,7 +4771,7 @@ func (x *TracerZipkinConfig) GetAddress() string {
 type TracerStackdriverConfig struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// enables trace output to stdout.
-	Debug *wrapperspb.BoolValue `protobuf:"bytes,1,opt,name=debug,proto3" json:"debug,omitempty"`
+	Debug bool `protobuf:"varint,1,opt,name=debug,proto3" json:"debug,omitempty"`
 	// The global default max number of attributes per span.
 	MaxNumberOfAttributes uint32 `protobuf:"varint,2,opt,name=maxNumberOfAttributes,proto3" json:"maxNumberOfAttributes,omitempty"`
 	// The global default max number of annotation events per span.
@@ -4813,11 +4812,11 @@ func (*TracerStackdriverConfig) Descriptor() ([]byte, []int) {
 	return file_pkg_apis_values_types_proto_rawDescGZIP(), []int{40}
 }
 
-func (x *TracerStackdriverConfig) GetDebug() *wrapperspb.BoolValue {
+func (x *TracerStackdriverConfig) GetDebug() bool {
 	if x != nil {
 		return x.Debug
 	}
-	return nil
+	return false
 }
 
 func (x *TracerStackdriverConfig) GetMaxNumberOfAttributes() uint32 {
@@ -4844,14 +4843,14 @@ func (x *TracerStackdriverConfig) GetMaxNumberOfMessageEvents() uint32 {
 type BaseConfig struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// For Helm2 use, adds the CRDs to templates.
-	EnableCRDTemplates *wrapperspb.BoolValue `protobuf:"bytes,1,opt,name=enableCRDTemplates,proto3" json:"enableCRDTemplates,omitempty"`
+	EnableCRDTemplates bool `protobuf:"varint,1,opt,name=enableCRDTemplates,proto3" json:"enableCRDTemplates,omitempty"`
 	// CRDs to exclude. Requires `enableCRDTemplates`
 	ExcludedCRDs []string `protobuf:"bytes,6,rep,name=excludedCRDs,proto3" json:"excludedCRDs,omitempty"`
 	// URL to use for validating webhook.
 	ValidationURL string `protobuf:"bytes,2,opt,name=validationURL,proto3" json:"validationURL,omitempty"`
 	// For istioctl usage to disable istio config crds in base
-	EnableIstioConfigCRDs *wrapperspb.BoolValue `protobuf:"bytes,3,opt,name=enableIstioConfigCRDs,proto3" json:"enableIstioConfigCRDs,omitempty"`
-	ValidateGateway       *wrapperspb.BoolValue `protobuf:"bytes,4,opt,name=validateGateway,proto3" json:"validateGateway,omitempty"`
+	EnableIstioConfigCRDs bool `protobuf:"varint,3,opt,name=enableIstioConfigCRDs,proto3" json:"enableIstioConfigCRDs,omitempty"`
+	ValidateGateway       bool `protobuf:"varint,4,opt,name=validateGateway,proto3" json:"validateGateway,omitempty"`
 	// validation webhook CA bundle
 	ValidationCABundle string `protobuf:"bytes,5,opt,name=validationCABundle,proto3" json:"validationCABundle,omitempty"`
 	unknownFields      protoimpl.UnknownFields
@@ -4888,11 +4887,11 @@ func (*BaseConfig) Descriptor() ([]byte, []int) {
 	return file_pkg_apis_values_types_proto_rawDescGZIP(), []int{41}
 }
 
-func (x *BaseConfig) GetEnableCRDTemplates() *wrapperspb.BoolValue {
+func (x *BaseConfig) GetEnableCRDTemplates() bool {
 	if x != nil {
 		return x.EnableCRDTemplates
 	}
-	return nil
+	return false
 }
 
 func (x *BaseConfig) GetExcludedCRDs() []string {
@@ -4909,18 +4908,18 @@ func (x *BaseConfig) GetValidationURL() string {
 	return ""
 }
 
-func (x *BaseConfig) GetEnableIstioConfigCRDs() *wrapperspb.BoolValue {
+func (x *BaseConfig) GetEnableIstioConfigCRDs() bool {
 	if x != nil {
 		return x.EnableIstioConfigCRDs
 	}
-	return nil
+	return false
 }
 
-func (x *BaseConfig) GetValidateGateway() *wrapperspb.BoolValue {
+func (x *BaseConfig) GetValidateGateway() bool {
 	if x != nil {
 		return x.ValidateGateway
 	}
-	return nil
+	return false
 }
 
 func (x *BaseConfig) GetValidationCABundle() string {
@@ -4939,10 +4938,10 @@ type IstiodRemoteConfig struct {
 	// injector ca bundle
 	InjectionCABundle string `protobuf:"bytes,3,opt,name=injectionCABundle,proto3" json:"injectionCABundle,omitempty"`
 	// Indicates if this cluster/install should consume a "remote" istiod instance,
-	Enabled *wrapperspb.BoolValue `protobuf:"bytes,5,opt,name=enabled,proto3" json:"enabled,omitempty"`
+	Enabled bool `protobuf:"varint,5,opt,name=enabled,proto3" json:"enabled,omitempty"`
 	// If `true`, indicates that this cluster/install should consume a "local istiod" installation,
 	// local istiod inject sidecars
-	EnabledLocalInjectorIstiod *wrapperspb.BoolValue `protobuf:"bytes,6,opt,name=enabledLocalInjectorIstiod,proto3" json:"enabledLocalInjectorIstiod,omitempty"`
+	EnabledLocalInjectorIstiod bool `protobuf:"varint,6,opt,name=enabledLocalInjectorIstiod,proto3" json:"enabledLocalInjectorIstiod,omitempty"`
 	unknownFields              protoimpl.UnknownFields
 	sizeCache                  protoimpl.SizeCache
 }
@@ -4998,18 +4997,18 @@ func (x *IstiodRemoteConfig) GetInjectionCABundle() string {
 	return ""
 }
 
-func (x *IstiodRemoteConfig) GetEnabled() *wrapperspb.BoolValue {
+func (x *IstiodRemoteConfig) GetEnabled() bool {
 	if x != nil {
 		return x.Enabled
 	}
-	return nil
+	return false
 }
 
-func (x *IstiodRemoteConfig) GetEnabledLocalInjectorIstiod() *wrapperspb.BoolValue {
+func (x *IstiodRemoteConfig) GetEnabledLocalInjectorIstiod() bool {
 	if x != nil {
 		return x.EnabledLocalInjectorIstiod
 	}
-	return nil
+	return false
 }
 
 type Values struct {
@@ -5235,7 +5234,7 @@ func (x *Values) GetGatewayClasses() *structpb.Value {
 type ExperimentalConfig struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Controls whether the experimental feature is enabled.
-	StableValidationPolicy *wrapperspb.BoolValue `protobuf:"bytes,1,opt,name=stableValidationPolicy,proto3" json:"stableValidationPolicy,omitempty"`
+	StableValidationPolicy bool `protobuf:"varint,1,opt,name=stableValidationPolicy,proto3" json:"stableValidationPolicy,omitempty"`
 	unknownFields          protoimpl.UnknownFields
 	sizeCache              protoimpl.SizeCache
 }
@@ -5270,11 +5269,11 @@ func (*ExperimentalConfig) Descriptor() ([]byte, []int) {
 	return file_pkg_apis_values_types_proto_rawDescGZIP(), []int{44}
 }
 
-func (x *ExperimentalConfig) GetStableValidationPolicy() *wrapperspb.BoolValue {
+func (x *ExperimentalConfig) GetStableValidationPolicy() bool {
 	if x != nil {
 		return x.StableValidationPolicy
 	}
-	return nil
+	return false
 }
 
 // IntOrString is a type that can hold an int32 or a string.  When used in
@@ -5442,7 +5441,7 @@ func (x *WaypointConfig) GetToleration() []*v1.Toleration {
 type NetworkPolicyConfig struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Controls whether default NetworkPolicy resources will be created.
-	Enabled       *wrapperspb.BoolValue `protobuf:"bytes,1,opt,name=enabled,proto3" json:"enabled,omitempty"`
+	Enabled       bool `protobuf:"varint,1,opt,name=enabled,proto3" json:"enabled,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -5477,26 +5476,26 @@ func (*NetworkPolicyConfig) Descriptor() ([]byte, []int) {
 	return file_pkg_apis_values_types_proto_rawDescGZIP(), []int{47}
 }
 
-func (x *NetworkPolicyConfig) GetEnabled() *wrapperspb.BoolValue {
+func (x *NetworkPolicyConfig) GetEnabled() bool {
 	if x != nil {
 		return x.Enabled
 	}
-	return nil
+	return false
 }
 
 var File_pkg_apis_values_types_proto protoreflect.FileDescriptor
 
 const file_pkg_apis_values_types_proto_rawDesc = "" +
 	"\n" +
-	"\x1bpkg/apis/values_types.proto\x12\x17istio.operator.v1alpha1\x1a\x19google/protobuf/any.proto\x1a\x1egoogle/protobuf/duration.proto\x1a\x1cgoogle/protobuf/struct.proto\x1a\x1egoogle/protobuf/wrappers.proto\x1a\"k8s.io/api/core/v1/generated.proto\x1a4k8s.io/apimachinery/pkg/apis/meta/v1/generated.proto\"h\n" +
+	"\x1bpkg/apis/values_types.proto\x12\x17istio.operator.v1alpha1\x1a\x19google/protobuf/any.proto\x1a\x1cgoogle/protobuf/struct.proto\x1a\x1egoogle/protobuf/wrappers.proto\x1a\"k8s.io/api/core/v1/generated.proto\x1a4k8s.io/apimachinery/pkg/apis/meta/v1/generated.proto\"h\n" +
 	"\n" +
 	"ArchConfig\x12\x14\n" +
 	"\x05amd64\x18\x01 \x01(\rR\x05amd64\x12\x18\n" +
 	"\appc64le\x18\x02 \x01(\rR\appc64le\x12\x14\n" +
 	"\x05s390x\x18\x03 \x01(\rR\x05s390x\x12\x14\n" +
-	"\x05arm64\x18\x04 \x01(\rR\x05arm64\"\xa0\f\n" +
-	"\tCNIConfig\x124\n" +
-	"\aenabled\x18\x01 \x01(\v2\x1a.google.protobuf.BoolValueR\aenabled\x12\x10\n" +
+	"\x05arm64\x18\x04 \x01(\rR\x05arm64\"\x9a\x0e\n" +
+	"\tCNIConfig\x12\x18\n" +
+	"\aenabled\x18\x01 \x01(\bR\aenabled\x12\x10\n" +
 	"\x03hub\x18\x02 \x01(\tR\x03hub\x12(\n" +
 	"\x03tag\x18\x03 \x01(\v2\x16.google.protobuf.ValueR\x03tag\x12\x18\n" +
 	"\avariant\x18\x1d \x01(\tR\avariant\x12\x14\n" +
@@ -5511,42 +5510,54 @@ const file_pkg_apis_values_types_proto_rawDesc = "" +
 	"\x0fcniConfFileName\x18\b \x01(\tR\x0fcniConfFileName\x12 \n" +
 	"\vcniNetnsDir\x18\x1f \x01(\tR\vcniNetnsDir\x12,\n" +
 	"\x11excludeNamespaces\x18\t \x03(\tR\x11excludeNamespaces\x128\n" +
-	"\baffinity\x18\x14 \x01(\v2\x1c.k8s.io.api.core.v1.AffinityR\baffinity\x12)\n" +
-	"\x03env\x18  \x01(\v2\x17.google.protobuf.StructR\x03env\x12A\n" +
-	"\x0fdaemonSetLabels\x18! \x01(\v2\x17.google.protobuf.StructR\x0fdaemonSetLabels\x12C\n" +
+	"\baffinity\x18\x14 \x01(\v2\x1c.k8s.io.api.core.v1.AffinityR\baffinity\x12=\n" +
+	"\x03env\x18  \x03(\v2+.istio.operator.v1alpha1.CNIConfig.EnvEntryR\x03env\x12a\n" +
+	"\x0fdaemonSetLabels\x18! \x03(\v27.istio.operator.v1alpha1.CNIConfig.DaemonSetLabelsEntryR\x0fdaemonSetLabels\x12b\n" +
 	"\x0epodAnnotations\x18\n" +
-	" \x01(\v2\x17.google.protobuf.StructB\x02\x18\x01R\x0epodAnnotations\x125\n" +
-	"\tpodLabels\x18\" \x01(\v2\x17.google.protobuf.StructR\tpodLabels\x12(\n" +
+	" \x03(\v26.istio.operator.v1alpha1.CNIConfig.PodAnnotationsEntryB\x02\x18\x01R\x0epodAnnotations\x12O\n" +
+	"\tpodLabels\x18\" \x03(\v21.istio.operator.v1alpha1.CNIConfig.PodLabelsEntryR\tpodLabels\x12(\n" +
 	"\x10psp_cluster_role\x18\v \x01(\tR\x0epspClusterRole\x12\x1e\n" +
 	"\blogLevel\x18\f \x01(\tB\x02\x18\x01R\blogLevel\x12F\n" +
 	"\alogging\x18\x19 \x01(\v2,.istio.operator.v1alpha1.GlobalLoggingConfigR\alogging\x12@\n" +
-	"\x06repair\x18\r \x01(\v2(.istio.operator.v1alpha1.CNIRepairConfigR\x06repair\x124\n" +
-	"\achained\x18\x0e \x01(\v2\x1a.google.protobuf.BoolValueR\achained\x12P\n" +
+	"\x06repair\x18\r \x01(\v2(.istio.operator.v1alpha1.CNIRepairConfigR\x06repair\x12\x18\n" +
+	"\achained\x18\x0e \x01(\bR\achained\x12P\n" +
 	"\x0fresource_quotas\x18\x10 \x01(\v2'.istio.operator.v1alpha1.ResourceQuotasR\x0eresourceQuotas\x12@\n" +
-	"\tresources\x18\x11 \x01(\v2\".istio.operator.v1alpha1.ResourcesR\tresources\x12>\n" +
+	"\tresources\x18\x11 \x01(\v2\".istio.operator.v1alpha1.ResourcesR\tresources\x12\"\n" +
 	"\n" +
-	"privileged\x18\x12 \x01(\v2\x1a.google.protobuf.BoolValueB\x02\x18\x01R\n" +
+	"privileged\x18\x12 \x01(\bB\x02\x18\x01R\n" +
 	"privileged\x12J\n" +
 	"\x0eseccompProfile\x18\x13 \x01(\v2\".k8s.io.api.core.v1.SeccompProfileR\x0eseccompProfile\x12C\n" +
 	"\aambient\x18\x15 \x01(\v2).istio.operator.v1alpha1.CNIAmbientConfigR\aambient\x12\x1a\n" +
 	"\bprovider\x18\x16 \x01(\tR\bprovider\x12Z\n" +
-	"\x15rollingMaxUnavailable\x18\x17 \x01(\v2$.istio.operator.v1alpha1.IntOrStringR\x15rollingMaxUnavailable\x12L\n" +
-	"\x13istioOwnedCNIConfig\x18# \x01(\v2\x1a.google.protobuf.BoolValueR\x13istioOwnedCNIConfig\x12@\n" +
-	"\x1bistioOwnedCNIConfigFileName\x18$ \x01(\tR\x1bistioOwnedCNIConfigFileName\"\x9c\x01\n" +
-	"\x0eCNIUsageConfig\x124\n" +
-	"\aenabled\x18\x01 \x01(\v2\x1a.google.protobuf.BoolValueR\aenabled\x128\n" +
-	"\achained\x18\x02 \x01(\v2\x1a.google.protobuf.BoolValueB\x02\x18\x01R\achained\x12\x1a\n" +
-	"\bprovider\x18\x03 \x01(\tR\bprovider\"\xae\x02\n" +
-	"\x10CNIAmbientConfig\x124\n" +
-	"\aenabled\x18\x01 \x01(\v2\x1a.google.protobuf.BoolValueR\aenabled\x12\x1c\n" +
-	"\tconfigDir\x18\x03 \x01(\tR\tconfigDir\x12:\n" +
+	"\x15rollingMaxUnavailable\x18\x17 \x01(\v2$.istio.operator.v1alpha1.IntOrStringR\x15rollingMaxUnavailable\x120\n" +
+	"\x13istioOwnedCNIConfig\x18# \x01(\bR\x13istioOwnedCNIConfig\x12@\n" +
+	"\x1bistioOwnedCNIConfigFileName\x18$ \x01(\tR\x1bistioOwnedCNIConfigFileName\x1a6\n" +
+	"\bEnvEntry\x12\x10\n" +
+	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\x1aB\n" +
+	"\x14DaemonSetLabelsEntry\x12\x10\n" +
+	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\x1aA\n" +
+	"\x13PodAnnotationsEntry\x12\x10\n" +
+	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\x1a<\n" +
+	"\x0ePodLabelsEntry\x12\x10\n" +
+	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"d\n" +
+	"\x0eCNIUsageConfig\x12\x18\n" +
+	"\aenabled\x18\x01 \x01(\bR\aenabled\x12\x1c\n" +
+	"\achained\x18\x02 \x01(\bB\x02\x18\x01R\achained\x12\x1a\n" +
+	"\bprovider\x18\x03 \x01(\tR\bprovider\"\xbe\x01\n" +
+	"\x10CNIAmbientConfig\x12\x18\n" +
+	"\aenabled\x18\x01 \x01(\bR\aenabled\x12\x1c\n" +
+	"\tconfigDir\x18\x03 \x01(\tR\tconfigDir\x12\x1e\n" +
 	"\n" +
-	"dnsCapture\x18\x05 \x01(\v2\x1a.google.protobuf.BoolValueR\n" +
-	"dnsCapture\x12.\n" +
-	"\x04ipv6\x18\a \x01(\v2\x1a.google.protobuf.BoolValueR\x04ipv6\x12Z\n" +
-	"\x1areconcileIptablesOnStartup\x18\t \x01(\v2\x1a.google.protobuf.BoolValueR\x1areconcileIptablesOnStartup\"\xad\x03\n" +
-	"\x0fCNIRepairConfig\x124\n" +
-	"\aenabled\x18\x01 \x01(\v2\x1a.google.protobuf.BoolValueR\aenabled\x12\x10\n" +
+	"dnsCapture\x18\x05 \x01(\bR\n" +
+	"dnsCapture\x12\x12\n" +
+	"\x04ipv6\x18\a \x01(\bR\x04ipv6\x12>\n" +
+	"\x1areconcileIptablesOnStartup\x18\t \x01(\bR\x1areconcileIptablesOnStartup\"\x91\x03\n" +
+	"\x0fCNIRepairConfig\x12\x18\n" +
+	"\aenabled\x18\x01 \x01(\bR\aenabled\x12\x10\n" +
 	"\x03hub\x18\x02 \x01(\tR\x03hub\x12(\n" +
 	"\x03tag\x18\x03 \x01(\v2\x16.google.protobuf.ValueR\x03tag\x12\x14\n" +
 	"\x05image\x18\x04 \x01(\tR\x05image\x12\x1c\n" +
@@ -5561,9 +5572,9 @@ const file_pkg_apis_values_types_proto_rawDesc = "" +
 	"\x11brokenPodLabelKey\x18\b \x01(\tR\x11brokenPodLabelKey\x120\n" +
 	"\x13brokenPodLabelValue\x18\t \x01(\tR\x13brokenPodLabelValue\x12,\n" +
 	"\x11initContainerName\x18\n" +
-	" \x01(\tR\x11initContainerName\"Z\n" +
-	"\x0eResourceQuotas\x124\n" +
-	"\aenabled\x18\x01 \x01(\v2\x1a.google.protobuf.BoolValueR\aenabled\x12\x12\n" +
+	" \x01(\tR\x11initContainerName\">\n" +
+	"\x0eResourceQuotas\x12\x18\n" +
+	"\aenabled\x18\x01 \x01(\bR\aenabled\x12\x12\n" +
 	"\x04pods\x18\x02 \x01(\x03R\x04pods\"U\n" +
 	"\x17TargetUtilizationConfig\x12:\n" +
 	"\x18targetAverageUtilization\x18\x01 \x01(\x05R\x18targetAverageUtilization\"\x99\x02\n" +
@@ -5575,77 +5586,98 @@ const file_pkg_apis_values_types_proto_rawDesc = "" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\x1a;\n" +
 	"\rRequestsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"K\n" +
-	"\x0eServiceAccount\x129\n" +
-	"\vannotations\x18\x01 \x01(\v2\x17.google.protobuf.StructR\vannotations\"X\n" +
-	" DefaultPodDisruptionBudgetConfig\x124\n" +
-	"\aenabled\x18\x01 \x01(\v2\x1a.google.protobuf.BoolValueR\aenabled\"f\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xac\x01\n" +
+	"\x0eServiceAccount\x12Z\n" +
+	"\vannotations\x18\x01 \x03(\v28.istio.operator.v1alpha1.ServiceAccount.AnnotationsEntryR\vannotations\x1a>\n" +
+	"\x10AnnotationsEntry\x12\x10\n" +
+	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"<\n" +
+	" DefaultPodDisruptionBudgetConfig\x12\x18\n" +
+	"\aenabled\x18\x01 \x01(\bR\aenabled\"f\n" +
 	"\x16DefaultResourcesConfig\x12L\n" +
-	"\brequests\x18\x01 \x01(\v20.istio.operator.v1alpha1.ResourcesRequestsConfigR\brequests\"\xbb\x0f\n" +
-	"\x13EgressGatewayConfig\x12F\n" +
-	"\x10autoscaleEnabled\x18\x01 \x01(\v2\x1a.google.protobuf.BoolValueR\x10autoscaleEnabled\x12\"\n" +
+	"\brequests\x18\x01 \x01(\v20.istio.operator.v1alpha1.ResourcesRequestsConfigR\brequests\"\xfb\x13\n" +
+	"\x13EgressGatewayConfig\x12*\n" +
+	"\x10autoscaleEnabled\x18\x01 \x01(\bR\x10autoscaleEnabled\x12\"\n" +
 	"\fautoscaleMax\x18\x02 \x01(\rR\fautoscaleMax\x12\"\n" +
 	"\fautoscaleMin\x18\x03 \x01(\rR\fautoscaleMin\x12L\n" +
 	"\x06memory\x18\x04 \x01(\v20.istio.operator.v1alpha1.TargetUtilizationConfigB\x02\x18\x01R\x06memory\x12F\n" +
-	"\x03cpu\x18\x05 \x01(\v20.istio.operator.v1alpha1.TargetUtilizationConfigB\x02\x18\x01R\x03cpu\x12@\n" +
-	"\rcustomService\x18\x06 \x01(\v2\x1a.google.protobuf.BoolValueR\rcustomService\x124\n" +
-	"\aenabled\x18\a \x01(\v2\x1a.google.protobuf.BoolValueR\aenabled\x12)\n" +
-	"\x03env\x18\b \x01(\v2\x17.google.protobuf.StructR\x03env\x12P\n" +
+	"\x03cpu\x18\x05 \x01(\v20.istio.operator.v1alpha1.TargetUtilizationConfigB\x02\x18\x01R\x03cpu\x12$\n" +
+	"\rcustomService\x18\x06 \x01(\bR\rcustomService\x12\x18\n" +
+	"\aenabled\x18\a \x01(\bR\aenabled\x12G\n" +
+	"\x03env\x18\b \x03(\v25.istio.operator.v1alpha1.EgressGatewayConfig.EnvEntryR\x03env\x12P\n" +
 	"\x06labels\x18\t \x03(\v28.istio.operator.v1alpha1.EgressGatewayConfig.LabelsEntryR\x06labels\x12\x12\n" +
-	"\x04name\x18\x19 \x01(\tR\x04name\x12?\n" +
+	"\x04name\x18\x19 \x01(\tR\x04name\x12f\n" +
 	"\fnodeSelector\x18\n" +
-	" \x01(\v2\x17.google.protobuf.StructB\x02\x18\x01R\fnodeSelector\x12C\n" +
-	"\x0epodAnnotations\x18\v \x01(\v2\x17.google.protobuf.StructB\x02\x18\x01R\x0epodAnnotations\x12{\n" +
+	" \x03(\v2>.istio.operator.v1alpha1.EgressGatewayConfig.NodeSelectorEntryB\x02\x18\x01R\fnodeSelector\x12l\n" +
+	"\x0epodAnnotations\x18\v \x03(\v2@.istio.operator.v1alpha1.EgressGatewayConfig.PodAnnotationsEntryB\x02\x18\x01R\x0epodAnnotations\x12{\n" +
 	"\x1cpodAntiAffinityLabelSelector\x18\f \x03(\v23.k8s.io.apimachinery.pkg.apis.meta.v1.LabelSelectorB\x02\x18\x01R\x1cpodAntiAffinityLabelSelector\x12\x83\x01\n" +
 	" podAntiAffinityTermLabelSelector\x18\r \x03(\v23.k8s.io.apimachinery.pkg.apis.meta.v1.LabelSelectorB\x02\x18\x01R podAntiAffinityTermLabelSelector\x12:\n" +
 	"\x05ports\x18\x0e \x03(\v2$.istio.operator.v1alpha1.PortsConfigR\x05ports\x12D\n" +
 	"\tresources\x18\x0f \x01(\v2\".istio.operator.v1alpha1.ResourcesB\x02\x18\x01R\tresources\x12K\n" +
-	"\rsecretVolumes\x18\x10 \x03(\v2%.istio.operator.v1alpha1.SecretVolumeR\rsecretVolumes\x12G\n" +
-	"\x12serviceAnnotations\x18\x11 \x01(\v2\x17.google.protobuf.StructR\x12serviceAnnotations\x12\x12\n" +
+	"\rsecretVolumes\x18\x10 \x03(\v2%.istio.operator.v1alpha1.SecretVolumeR\rsecretVolumes\x12t\n" +
+	"\x12serviceAnnotations\x18\x11 \x03(\v2D.istio.operator.v1alpha1.EgressGatewayConfig.ServiceAnnotationsEntryR\x12serviceAnnotations\x12\x12\n" +
 	"\x04type\x18\x12 \x01(\tR\x04type\x12D\n" +
 	"\vtolerations\x18\x14 \x03(\v2\x1e.k8s.io.api.core.v1.TolerationB\x02\x18\x01R\vtolerations\x12R\n" +
 	"\x0frollingMaxSurge\x18\x15 \x01(\v2$.istio.operator.v1alpha1.IntOrStringB\x02\x18\x01R\x0frollingMaxSurge\x12^\n" +
-	"\x15rollingMaxUnavailable\x18\x16 \x01(\v2$.istio.operator.v1alpha1.IntOrStringB\x02\x18\x01R\x15rollingMaxUnavailable\x12=\n" +
-	"\rconfigVolumes\x18\x17 \x03(\v2\x17.google.protobuf.StructR\rconfigVolumes\x12K\n" +
-	"\x14additionalContainers\x18\x18 \x03(\v2\x17.google.protobuf.StructR\x14additionalContainers\x128\n" +
-	"\trunAsRoot\x18\x1a \x01(\v2\x1a.google.protobuf.BoolValueR\trunAsRoot\x12,\n" +
+	"\x15rollingMaxUnavailable\x18\x16 \x01(\v2$.istio.operator.v1alpha1.IntOrStringB\x02\x18\x01R\x15rollingMaxUnavailable\x12e\n" +
+	"\rconfigVolumes\x18\x17 \x03(\v2?.istio.operator.v1alpha1.EgressGatewayConfig.ConfigVolumesEntryR\rconfigVolumes\x12z\n" +
+	"\x14additionalContainers\x18\x18 \x03(\v2F.istio.operator.v1alpha1.EgressGatewayConfig.AdditionalContainersEntryR\x14additionalContainers\x12\x1c\n" +
+	"\trunAsRoot\x18\x1a \x01(\bR\trunAsRoot\x12,\n" +
 	"\x11injectionTemplate\x18\x1b \x01(\tR\x11injectionTemplate\x12O\n" +
 	"\x0eserviceAccount\x18\x1c \x01(\v2'.istio.operator.v1alpha1.ServiceAccountR\x0eserviceAccount\x12\x1e\n" +
 	"\n" +
 	"ipFamilies\x18\x1d \x03(\tR\n" +
 	"ipFamilies\x12&\n" +
-	"\x0eipFamilyPolicy\x18\x1e \x01(\tR\x0eipFamilyPolicy\x1a9\n" +
+	"\x0eipFamilyPolicy\x18\x1e \x01(\tR\x0eipFamilyPolicy\x1a6\n" +
+	"\bEnvEntry\x12\x10\n" +
+	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\x1a9\n" +
 	"\vLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\x8b\x03\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\x1a?\n" +
+	"\x11NodeSelectorEntry\x12\x10\n" +
+	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\x1aA\n" +
+	"\x13PodAnnotationsEntry\x12\x10\n" +
+	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\x1aE\n" +
+	"\x17ServiceAnnotationsEntry\x12\x10\n" +
+	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\x1aX\n" +
+	"\x12ConfigVolumesEntry\x12\x10\n" +
+	"\x03key\x18\x01 \x01(\tR\x03key\x12,\n" +
+	"\x05value\x18\x02 \x01(\v2\x16.google.protobuf.ValueR\x05value:\x028\x01\x1a_\n" +
+	"\x19AdditionalContainersEntry\x12\x10\n" +
+	"\x03key\x18\x01 \x01(\tR\x03key\x12,\n" +
+	"\x05value\x18\x02 \x01(\v2\x16.google.protobuf.ValueR\x05value:\x028\x01\"\xef\x02\n" +
 	"\x0eGatewaysConfig\x12^\n" +
-	"\x13istio_egressgateway\x18\x01 \x01(\v2,.istio.operator.v1alpha1.EgressGatewayConfigR\x13istio-egressgateway\x124\n" +
-	"\aenabled\x18\x02 \x01(\v2\x1a.google.protobuf.BoolValueR\aenabled\x12a\n" +
+	"\x13istio_egressgateway\x18\x01 \x01(\v2,.istio.operator.v1alpha1.EgressGatewayConfigR\x13istio-egressgateway\x12\x18\n" +
+	"\aenabled\x18\x02 \x01(\bR\aenabled\x12a\n" +
 	"\x14istio_ingressgateway\x18\x04 \x01(\v2-.istio.operator.v1alpha1.IngressGatewayConfigR\x14istio-ingressgateway\x12@\n" +
 	"\x0fsecurityContext\x18\n" +
 	" \x01(\v2\x16.google.protobuf.ValueR\x0fsecurityContext\x12>\n" +
-	"\x0eseccompProfile\x18\f \x01(\v2\x16.google.protobuf.ValueR\x0eseccompProfile\"\xad\x14\n" +
+	"\x0eseccompProfile\x18\f \x01(\v2\x16.google.protobuf.ValueR\x0eseccompProfile\"\xb5\x14\n" +
 	"\fGlobalConfig\x12;\n" +
 	"\x04arch\x18\x01 \x01(\v2#.istio.operator.v1alpha1.ArchConfigB\x02\x18\x01R\x04arch\x12 \n" +
-	"\vcertSigners\x18D \x03(\tR\vcertSigners\x12F\n" +
-	"\x10configValidation\x18\x03 \x01(\v2\x1a.google.protobuf.BoolValueR\x10configValidation\x12M\n" +
-	"\x13defaultNodeSelector\x18\x06 \x01(\v2\x17.google.protobuf.StructB\x02\x18\x01R\x13defaultNodeSelector\x12y\n" +
+	"\vcertSigners\x18D \x03(\tR\vcertSigners\x12*\n" +
+	"\x10configValidation\x18\x03 \x01(\bR\x10configValidation\x12t\n" +
+	"\x13defaultNodeSelector\x18\x06 \x03(\v2>.istio.operator.v1alpha1.GlobalConfig.DefaultNodeSelectorEntryB\x02\x18\x01R\x13defaultNodeSelector\x12y\n" +
 	"\x1adefaultPodDisruptionBudget\x18\a \x01(\v29.istio.operator.v1alpha1.DefaultPodDisruptionBudgetConfigR\x1adefaultPodDisruptionBudget\x12_\n" +
 	"\x10defaultResources\x18\t \x01(\v2/.istio.operator.v1alpha1.DefaultResourcesConfigB\x02\x18\x01R\x10defaultResources\x12R\n" +
 	"\x12defaultTolerations\x187 \x03(\v2\x1e.k8s.io.api.core.v1.TolerationB\x02\x18\x01R\x12defaultTolerations\x12\x10\n" +
 	"\x03hub\x18\f \x01(\tR\x03hub\x12(\n" +
 	"\x0fimagePullPolicy\x18\r \x01(\tR\x0fimagePullPolicy\x12*\n" +
 	"\x10imagePullSecrets\x18% \x03(\tR\x10imagePullSecrets\x12&\n" +
-	"\x0eistioNamespace\x18\x0e \x01(\tR\x0eistioNamespace\x128\n" +
-	"\tlogAsJson\x18$ \x01(\v2\x1a.google.protobuf.BoolValueR\tlogAsJson\x12F\n" +
+	"\x0eistioNamespace\x18\x0e \x01(\tR\x0eistioNamespace\x12\x1c\n" +
+	"\tlogAsJson\x18$ \x01(\bR\tlogAsJson\x12F\n" +
 	"\alogging\x18\x11 \x01(\v2,.istio.operator.v1alpha1.GlobalLoggingConfigR\alogging\x12\x16\n" +
-	"\x06meshID\x185 \x01(\tR\x06meshID\x12;\n" +
-	"\fmeshNetworks\x18\x13 \x01(\v2\x17.google.protobuf.StructR\fmeshNetworks\x12O\n" +
+	"\x06meshID\x185 \x01(\tR\x06meshID\x12[\n" +
+	"\fmeshNetworks\x18\x13 \x03(\v27.istio.operator.v1alpha1.GlobalConfig.MeshNetworksEntryR\fmeshNetworks\x12O\n" +
 	"\fmultiCluster\x18\x16 \x01(\v2+.istio.operator.v1alpha1.MultiClusterConfigR\fmultiCluster\x12\x18\n" +
 	"\anetwork\x18' \x01(\tR\anetwork\x126\n" +
-	"\x16podDNSSearchNamespaces\x18+ \x03(\tR\x16podDNSSearchNamespaces\x12^\n" +
-	"\x1comitSidecarInjectorConfigMap\x18& \x01(\v2\x1a.google.protobuf.BoolValueR\x1comitSidecarInjectorConfigMap\x12R\n" +
-	"\x16operatorManageWebhooks\x18) \x01(\v2\x1a.google.protobuf.BoolValueR\x16operatorManageWebhooks\x120\n" +
+	"\x16podDNSSearchNamespaces\x18+ \x03(\tR\x16podDNSSearchNamespaces\x12B\n" +
+	"\x1comitSidecarInjectorConfigMap\x18& \x01(\bR\x1comitSidecarInjectorConfigMap\x126\n" +
+	"\x16operatorManageWebhooks\x18) \x01(\bR\x16operatorManageWebhooks\x120\n" +
 	"\x11priorityClassName\x18\x1b \x01(\tB\x02\x18\x01R\x11priorityClassName\x12:\n" +
 	"\x05proxy\x18\x1c \x01(\v2$.istio.operator.v1alpha1.ProxyConfigR\x05proxy\x12H\n" +
 	"\n" +
@@ -5660,11 +5692,11 @@ const file_pkg_apis_values_types_proto_rawDesc = "" +
 	"\x11pilotCertProvider\x188 \x01(\tR\x11pilotCertProvider\x12 \n" +
 	"\tjwtPolicy\x189 \x01(\tB\x02\x18\x01R\tjwtPolicy\x124\n" +
 	"\x03sts\x18: \x01(\v2\".istio.operator.v1alpha1.STSConfigR\x03sts\x12\x1a\n" +
-	"\brevision\x18; \x01(\tR\brevision\x12B\n" +
-	"\x0emountMtlsCerts\x18< \x01(\v2\x1a.google.protobuf.BoolValueR\x0emountMtlsCerts\x12\x1c\n" +
-	"\tcaAddress\x18= \x01(\tR\tcaAddress\x12B\n" +
-	"\x0eexternalIstiod\x18> \x01(\v2\x1a.google.protobuf.BoolValueR\x0eexternalIstiod\x12@\n" +
-	"\rconfigCluster\x18@ \x01(\v2\x1a.google.protobuf.BoolValueR\rconfigCluster\x12\x16\n" +
+	"\brevision\x18; \x01(\tR\brevision\x12&\n" +
+	"\x0emountMtlsCerts\x18< \x01(\bR\x0emountMtlsCerts\x12\x1c\n" +
+	"\tcaAddress\x18= \x01(\tR\tcaAddress\x12&\n" +
+	"\x0eexternalIstiod\x18> \x01(\bR\x0eexternalIstiod\x12$\n" +
+	"\rconfigCluster\x18@ \x01(\bR\rconfigCluster\x12\x16\n" +
 	"\x06caName\x18A \x01(\tR\x06caName\x12\x1a\n" +
 	"\bplatform\x18E \x01(\tR\bplatform\x12\x1e\n" +
 	"\n" +
@@ -5672,98 +5704,128 @@ const file_pkg_apis_values_types_proto_rawDesc = "" +
 	"ipFamilies\x12&\n" +
 	"\x0eipFamilyPolicy\x18G \x01(\tR\x0eipFamilyPolicy\x12C\n" +
 	"\bwaypoint\x18H \x01(\v2'.istio.operator.v1alpha1.WaypointConfigR\bwaypoint\x12(\n" +
-	"\x0ftrustBundleName\x18I \x01(\tR\x0ftrustBundleName\x12B\n" +
-	"\x0enativeNftables\x18J \x01(\v2\x1a.google.protobuf.BoolValueR\x0enativeNftables\x12R\n" +
+	"\x0ftrustBundleName\x18I \x01(\tR\x0ftrustBundleName\x12&\n" +
+	"\x0enativeNftables\x18J \x01(\bR\x0enativeNftables\x12R\n" +
 	"\rnetworkPolicy\x18K \x01(\v2,.istio.operator.v1alpha1.NetworkPolicyConfigR\rnetworkPolicy\x12L\n" +
-	"\rresourceScope\x18L \x01(\x0e2&.istio.operator.v1alpha1.ResourceScopeR\rresourceScope\"-\n" +
+	"\rresourceScope\x18L \x01(\x0e2&.istio.operator.v1alpha1.ResourceScopeR\rresourceScope\x1aF\n" +
+	"\x18DefaultNodeSelectorEntry\x12\x10\n" +
+	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\x1aW\n" +
+	"\x11MeshNetworksEntry\x12\x10\n" +
+	"\x03key\x18\x01 \x01(\tR\x03key\x12,\n" +
+	"\x05value\x18\x02 \x01(\v2\x16.google.protobuf.ValueR\x05value:\x028\x01\"-\n" +
 	"\tSTSConfig\x12 \n" +
-	"\vservicePort\x18\x01 \x01(\rR\vservicePort\"R\n" +
-	"\fIstiodConfig\x12B\n" +
-	"\x0eenableAnalysis\x18\x02 \x01(\v2\x1a.google.protobuf.BoolValueR\x0eenableAnalysis\"+\n" +
+	"\vservicePort\x18\x01 \x01(\rR\vservicePort\"6\n" +
+	"\fIstiodConfig\x12&\n" +
+	"\x0eenableAnalysis\x18\x02 \x01(\bR\x0eenableAnalysis\"+\n" +
 	"\x13GlobalLoggingConfig\x12\x14\n" +
-	"\x05level\x18\x01 \x01(\tR\x05level\"\xb1\x11\n" +
-	"\x14IngressGatewayConfig\x12F\n" +
-	"\x10autoscaleEnabled\x18\x01 \x01(\v2\x1a.google.protobuf.BoolValueR\x10autoscaleEnabled\x12\"\n" +
+	"\x05level\x18\x01 \x01(\tR\x05level\"\xdb\x17\n" +
+	"\x14IngressGatewayConfig\x12*\n" +
+	"\x10autoscaleEnabled\x18\x01 \x01(\bR\x10autoscaleEnabled\x12\"\n" +
 	"\fautoscaleMax\x18\x02 \x01(\rR\fautoscaleMax\x12\"\n" +
 	"\fautoscaleMin\x18\x03 \x01(\rR\fautoscaleMin\x12L\n" +
 	"\x06memory\x18\x04 \x01(\v20.istio.operator.v1alpha1.TargetUtilizationConfigB\x02\x18\x01R\x06memory\x12F\n" +
-	"\x03cpu\x18\x05 \x01(\v20.istio.operator.v1alpha1.TargetUtilizationConfigB\x02\x18\x01R\x03cpu\x12@\n" +
-	"\rcustomService\x18\x06 \x01(\v2\x1a.google.protobuf.BoolValueR\rcustomService\x124\n" +
+	"\x03cpu\x18\x05 \x01(\v20.istio.operator.v1alpha1.TargetUtilizationConfigB\x02\x18\x01R\x03cpu\x12$\n" +
+	"\rcustomService\x18\x06 \x01(\bR\rcustomService\x12\x18\n" +
 	"\aenabled\x18\n" +
-	" \x01(\v2\x1a.google.protobuf.BoolValueR\aenabled\x12)\n" +
-	"\x03env\x18\v \x01(\v2\x17.google.protobuf.StructR\x03env\x12Q\n" +
+	" \x01(\bR\aenabled\x12H\n" +
+	"\x03env\x18\v \x03(\v26.istio.operator.v1alpha1.IngressGatewayConfig.EnvEntryR\x03env\x12Q\n" +
 	"\x06labels\x18\x0f \x03(\v29.istio.operator.v1alpha1.IngressGatewayConfig.LabelsEntryR\x06labels\x12&\n" +
 	"\x0eloadBalancerIP\x18\x10 \x01(\tR\x0eloadBalancerIP\x12:\n" +
 	"\x18loadBalancerSourceRanges\x18\x11 \x03(\tR\x18loadBalancerSourceRanges\x12\x12\n" +
-	"\x04name\x18, \x01(\tR\x04name\x12?\n" +
-	"\fnodeSelector\x18\x13 \x01(\v2\x17.google.protobuf.StructB\x02\x18\x01R\fnodeSelector\x12C\n" +
-	"\x0epodAnnotations\x18\x14 \x01(\v2\x17.google.protobuf.StructB\x02\x18\x01R\x0epodAnnotations\x12{\n" +
+	"\x04name\x18, \x01(\tR\x04name\x12g\n" +
+	"\fnodeSelector\x18\x13 \x03(\v2?.istio.operator.v1alpha1.IngressGatewayConfig.NodeSelectorEntryB\x02\x18\x01R\fnodeSelector\x12m\n" +
+	"\x0epodAnnotations\x18\x14 \x03(\v2A.istio.operator.v1alpha1.IngressGatewayConfig.PodAnnotationsEntryB\x02\x18\x01R\x0epodAnnotations\x12{\n" +
 	"\x1cpodAntiAffinityLabelSelector\x18\x15 \x03(\v23.k8s.io.apimachinery.pkg.apis.meta.v1.LabelSelectorB\x02\x18\x01R\x1cpodAntiAffinityLabelSelector\x12\x83\x01\n" +
 	" podAntiAffinityTermLabelSelector\x18\x16 \x03(\v23.k8s.io.apimachinery.pkg.apis.meta.v1.LabelSelectorB\x02\x18\x01R podAntiAffinityTermLabelSelector\x12:\n" +
 	"\x05ports\x18\x17 \x03(\v2$.istio.operator.v1alpha1.PortsConfigR\x05ports\x12&\n" +
-	"\freplicaCount\x18\x18 \x01(\rB\x02\x18\x01R\freplicaCount\x129\n" +
-	"\tresources\x18\x19 \x01(\v2\x17.google.protobuf.StructB\x02\x18\x01R\tresources\x12K\n" +
-	"\rsecretVolumes\x18\x1b \x03(\v2%.istio.operator.v1alpha1.SecretVolumeR\rsecretVolumes\x12G\n" +
-	"\x12serviceAnnotations\x18\x1c \x01(\v2\x17.google.protobuf.StructR\x12serviceAnnotations\x12\x12\n" +
+	"\freplicaCount\x18\x18 \x01(\rB\x02\x18\x01R\freplicaCount\x12^\n" +
+	"\tresources\x18\x19 \x03(\v2<.istio.operator.v1alpha1.IngressGatewayConfig.ResourcesEntryB\x02\x18\x01R\tresources\x12K\n" +
+	"\rsecretVolumes\x18\x1b \x03(\v2%.istio.operator.v1alpha1.SecretVolumeR\rsecretVolumes\x12u\n" +
+	"\x12serviceAnnotations\x18\x1c \x03(\v2E.istio.operator.v1alpha1.IngressGatewayConfig.ServiceAnnotationsEntryR\x12serviceAnnotations\x12\x12\n" +
 	"\x04type\x18\x1d \x01(\tR\x04type\x12R\n" +
 	"\x0frollingMaxSurge\x18\x1f \x01(\v2$.istio.operator.v1alpha1.IntOrStringB\x02\x18\x01R\x0frollingMaxSurge\x12^\n" +
 	"\x15rollingMaxUnavailable\x18  \x01(\v2$.istio.operator.v1alpha1.IntOrStringB\x02\x18\x01R\x15rollingMaxUnavailable\x124\n" +
 	"\x15externalTrafficPolicy\x18\" \x01(\tR\x15externalTrafficPolicy\x12D\n" +
-	"\vtolerations\x18# \x03(\v2\x1e.k8s.io.api.core.v1.TolerationB\x02\x18\x01R\vtolerations\x12;\n" +
-	"\fingressPorts\x18$ \x03(\v2\x17.google.protobuf.StructR\fingressPorts\x12K\n" +
-	"\x14additionalContainers\x18% \x03(\v2\x17.google.protobuf.StructR\x14additionalContainers\x12=\n" +
-	"\rconfigVolumes\x18& \x03(\v2\x17.google.protobuf.StructR\rconfigVolumes\x128\n" +
-	"\trunAsRoot\x18- \x01(\v2\x1a.google.protobuf.BoolValueR\trunAsRoot\x12,\n" +
+	"\vtolerations\x18# \x03(\v2\x1e.k8s.io.api.core.v1.TolerationB\x02\x18\x01R\vtolerations\x12c\n" +
+	"\fingressPorts\x18$ \x03(\v2?.istio.operator.v1alpha1.IngressGatewayConfig.IngressPortsEntryR\fingressPorts\x12{\n" +
+	"\x14additionalContainers\x18% \x03(\v2G.istio.operator.v1alpha1.IngressGatewayConfig.AdditionalContainersEntryR\x14additionalContainers\x12f\n" +
+	"\rconfigVolumes\x18& \x03(\v2@.istio.operator.v1alpha1.IngressGatewayConfig.ConfigVolumesEntryR\rconfigVolumes\x12\x1c\n" +
+	"\trunAsRoot\x18- \x01(\bR\trunAsRoot\x12,\n" +
 	"\x11injectionTemplate\x18. \x01(\tR\x11injectionTemplate\x12O\n" +
 	"\x0eserviceAccount\x18/ \x01(\v2'.istio.operator.v1alpha1.ServiceAccountR\x0eserviceAccount\x12\x1e\n" +
 	"\n" +
 	"ipFamilies\x180 \x03(\tR\n" +
 	"ipFamilies\x12&\n" +
-	"\x0eipFamilyPolicy\x181 \x01(\tR\x0eipFamilyPolicy\x1a9\n" +
+	"\x0eipFamilyPolicy\x181 \x01(\tR\x0eipFamilyPolicy\x1a6\n" +
+	"\bEnvEntry\x12\x10\n" +
+	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\x1a9\n" +
 	"\vLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xe8\x01\n" +
-	"\x12MultiClusterConfig\x124\n" +
-	"\aenabled\x18\x01 \x01(\v2\x1a.google.protobuf.BoolValueR\aenabled\x12 \n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\x1a?\n" +
+	"\x11NodeSelectorEntry\x12\x10\n" +
+	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\x1aA\n" +
+	"\x13PodAnnotationsEntry\x12\x10\n" +
+	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\x1a<\n" +
+	"\x0eResourcesEntry\x12\x10\n" +
+	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\x1aE\n" +
+	"\x17ServiceAnnotationsEntry\x12\x10\n" +
+	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\x1aW\n" +
+	"\x11IngressPortsEntry\x12\x10\n" +
+	"\x03key\x18\x01 \x01(\tR\x03key\x12,\n" +
+	"\x05value\x18\x02 \x01(\v2\x16.google.protobuf.ValueR\x05value:\x028\x01\x1a_\n" +
+	"\x19AdditionalContainersEntry\x12\x10\n" +
+	"\x03key\x18\x01 \x01(\tR\x03key\x12,\n" +
+	"\x05value\x18\x02 \x01(\v2\x16.google.protobuf.ValueR\x05value:\x028\x01\x1aX\n" +
+	"\x12ConfigVolumesEntry\x12\x10\n" +
+	"\x03key\x18\x01 \x01(\tR\x03key\x12,\n" +
+	"\x05value\x18\x02 \x01(\v2\x16.google.protobuf.ValueR\x05value:\x028\x01\"\xb0\x01\n" +
+	"\x12MultiClusterConfig\x12\x18\n" +
+	"\aenabled\x18\x01 \x01(\bR\aenabled\x12 \n" +
 	"\vclusterName\x18\x02 \x01(\tR\vclusterName\x12.\n" +
-	"\x12globalDomainSuffix\x18\x03 \x01(\tR\x12globalDomainSuffix\x12J\n" +
-	"\x12includeEnvoyFilter\x18\x04 \x01(\v2\x1a.google.protobuf.BoolValueR\x12includeEnvoyFilter\"\x96\x01\n" +
+	"\x12globalDomainSuffix\x18\x03 \x01(\tR\x12globalDomainSuffix\x12.\n" +
+	"\x12includeEnvoyFilter\x18\x04 \x01(\bR\x12includeEnvoyFilter\"\x96\x01\n" +
 	"\x1bOutboundTrafficPolicyConfig\x12M\n" +
 	"\x04mode\x18\x02 \x01(\x0e29.istio.operator.v1alpha1.OutboundTrafficPolicyConfig.ModeR\x04mode\"(\n" +
 	"\x04Mode\x12\r\n" +
 	"\tALLOW_ANY\x10\x00\x12\x11\n" +
-	"\rREGISTRY_ONLY\x10\x01\"\x98\x13\n" +
-	"\vPilotConfig\x124\n" +
-	"\aenabled\x18\x01 \x01(\v2\x1a.google.protobuf.BoolValueR\aenabled\x12F\n" +
-	"\x10autoscaleEnabled\x18\x02 \x01(\v2\x1a.google.protobuf.BoolValueR\x10autoscaleEnabled\x12\"\n" +
+	"\rREGISTRY_ONLY\x10\x01\"\x8e\x1b\n" +
+	"\vPilotConfig\x12\x18\n" +
+	"\aenabled\x18\x01 \x01(\bR\aenabled\x12*\n" +
+	"\x10autoscaleEnabled\x18\x02 \x01(\bR\x10autoscaleEnabled\x12\"\n" +
 	"\fautoscaleMin\x18\x03 \x01(\rR\fautoscaleMin\x12\"\n" +
-	"\fautoscaleMax\x18\x04 \x01(\rR\fautoscaleMax\x12E\n" +
-	"\x11autoscaleBehavior\x18( \x01(\v2\x17.google.protobuf.StructR\x11autoscaleBehavior\x12&\n" +
+	"\fautoscaleMax\x18\x04 \x01(\rR\fautoscaleMax\x12i\n" +
+	"\x11autoscaleBehavior\x18( \x03(\v2;.istio.operator.v1alpha1.PilotConfig.AutoscaleBehaviorEntryR\x11autoscaleBehavior\x12&\n" +
 	"\freplicaCount\x18\x05 \x01(\rB\x02\x18\x01R\freplicaCount\x12\x14\n" +
 	"\x05image\x18\x06 \x01(\tR\x05image\x12$\n" +
 	"\rtraceSampling\x18\b \x01(\x01R\rtraceSampling\x12D\n" +
 	"\tresources\x18\t \x01(\v2\".istio.operator.v1alpha1.ResourcesB\x02\x18\x01R\tresources\x12F\n" +
-	"\x03cpu\x18\v \x01(\v20.istio.operator.v1alpha1.TargetUtilizationConfigB\x02\x18\x01R\x03cpu\x12?\n" +
-	"\fnodeSelector\x18\f \x01(\v2\x17.google.protobuf.StructB\x02\x18\x01R\fnodeSelector\x12c\n" +
-	"\x1fkeepaliveMaxServerConnectionAge\x18\r \x01(\v2\x19.google.protobuf.DurationR\x1fkeepaliveMaxServerConnectionAge\x12C\n" +
-	"\x10deploymentLabels\x18\x0e \x01(\v2\x17.google.protobuf.StructR\x10deploymentLabels\x125\n" +
-	"\tpodLabels\x18$ \x01(\v2\x17.google.protobuf.StructR\tpodLabels\x128\n" +
-	"\tconfigMap\x18\x12 \x01(\v2\x1a.google.protobuf.BoolValueR\tconfigMap\x12)\n" +
-	"\x03env\x18\x15 \x01(\v2\x17.google.protobuf.StructR\x03env\x128\n" +
+	"\x03cpu\x18\v \x01(\v20.istio.operator.v1alpha1.TargetUtilizationConfigB\x02\x18\x01R\x03cpu\x12^\n" +
+	"\fnodeSelector\x18\f \x03(\v26.istio.operator.v1alpha1.PilotConfig.NodeSelectorEntryB\x02\x18\x01R\fnodeSelector\x12x\n" +
+	"\x1fkeepaliveMaxServerConnectionAge\x18\r \x01(\v2..k8s.io.apimachinery.pkg.apis.meta.v1.DurationR\x1fkeepaliveMaxServerConnectionAge\x12f\n" +
+	"\x10deploymentLabels\x18\x0e \x03(\v2:.istio.operator.v1alpha1.PilotConfig.DeploymentLabelsEntryR\x10deploymentLabels\x12Q\n" +
+	"\tpodLabels\x18$ \x03(\v23.istio.operator.v1alpha1.PilotConfig.PodLabelsEntryR\tpodLabels\x12\x1c\n" +
+	"\tconfigMap\x18\x12 \x01(\bR\tconfigMap\x12?\n" +
+	"\x03env\x18\x15 \x03(\v2-.istio.operator.v1alpha1.PilotConfig.EnvEntryR\x03env\x128\n" +
 	"\baffinity\x18\x16 \x01(\v2\x1c.k8s.io.api.core.v1.AffinityR\baffinity\x12R\n" +
 	"\x0frollingMaxSurge\x18\x18 \x01(\v2$.istio.operator.v1alpha1.IntOrStringB\x02\x18\x01R\x0frollingMaxSurge\x12^\n" +
 	"\x15rollingMaxUnavailable\x18\x19 \x01(\v2$.istio.operator.v1alpha1.IntOrStringB\x02\x18\x01R\x15rollingMaxUnavailable\x12D\n" +
-	"\vtolerations\x18\x1a \x03(\v2\x1e.k8s.io.api.core.v1.TolerationB\x02\x18\x01R\vtolerations\x12C\n" +
-	"\x0epodAnnotations\x18\x1e \x01(\v2\x17.google.protobuf.StructB\x02\x18\x01R\x0epodAnnotations\x12G\n" +
-	"\x12serviceAnnotations\x18% \x01(\v2\x17.google.protobuf.StructR\x12serviceAnnotations\x12U\n" +
-	"\x19serviceAccountAnnotations\x188 \x01(\v2\x17.google.protobuf.StructR\x19serviceAccountAnnotations\x128\n" +
+	"\vtolerations\x18\x1a \x03(\v2\x1e.k8s.io.api.core.v1.TolerationB\x02\x18\x01R\vtolerations\x12d\n" +
+	"\x0epodAnnotations\x18\x1e \x03(\v28.istio.operator.v1alpha1.PilotConfig.PodAnnotationsEntryB\x02\x18\x01R\x0epodAnnotations\x12l\n" +
+	"\x12serviceAnnotations\x18% \x03(\v2<.istio.operator.v1alpha1.PilotConfig.ServiceAnnotationsEntryR\x12serviceAnnotations\x12\x81\x01\n" +
+	"\x19serviceAccountAnnotations\x188 \x03(\v2C.istio.operator.v1alpha1.PilotConfig.ServiceAccountAnnotationsEntryR\x19serviceAccountAnnotations\x128\n" +
 	"\x17jwksResolverExtraRootCA\x18  \x01(\tR\x17jwksResolverExtraRootCA\x12\x10\n" +
 	"\x03hub\x18\" \x01(\tR\x03hub\x12(\n" +
 	"\x03tag\x18# \x01(\v2\x16.google.protobuf.ValueR\x03tag\x12\x18\n" +
 	"\avariant\x18' \x01(\tR\avariant\x12J\n" +
 	"\x0eseccompProfile\x18& \x01(\v2\".k8s.io.api.core.v1.SeccompProfileR\x0eseccompProfile\x12j\n" +
-	"\x19topologySpreadConstraints\x18) \x03(\v2,.k8s.io.api.core.v1.TopologySpreadConstraintR\x19topologySpreadConstraints\x12G\n" +
-	"\x12extraContainerArgs\x18* \x03(\v2\x17.google.protobuf.StructR\x12extraContainerArgs\x12C\n" +
+	"\x19topologySpreadConstraints\x18) \x03(\v2,.k8s.io.api.core.v1.TopologySpreadConstraintR\x19topologySpreadConstraints\x12l\n" +
+	"\x12extraContainerArgs\x18* \x03(\v2<.istio.operator.v1alpha1.PilotConfig.ExtraContainerArgsEntryR\x12extraContainerArgs\x12C\n" +
 	"\fvolumeMounts\x181 \x03(\v2\x1f.k8s.io.api.core.v1.VolumeMountR\fvolumeMounts\x124\n" +
 	"\avolumes\x183 \x03(\v2\x1a.k8s.io.api.core.v1.VolumeR\avolumes\x12\x1e\n" +
 	"\n" +
@@ -5774,32 +5836,62 @@ const file_pkg_apis_values_types_proto_rawDesc = "" +
 	"\x03cni\x187 \x01(\v2'.istio.operator.v1alpha1.CNIUsageConfigR\x03cni\x12I\n" +
 	"\x05taint\x189 \x01(\v23.istio.operator.v1alpha1.PilotTaintControllerConfigR\x05taint\x128\n" +
 	"\x17trustedZtunnelNamespace\x18; \x01(\tR\x17trustedZtunnelNamespace\x12O\n" +
-	"\fistiodRemote\x18= \x01(\v2+.istio.operator.v1alpha1.IstiodRemoteConfigR\fistiodRemote\x127\n" +
+	"\fistiodRemote\x18= \x01(\v2+.istio.operator.v1alpha1.IstiodRemoteConfigR\fistiodRemote\x12T\n" +
 	"\n" +
-	"envVarFrom\x18> \x03(\v2\x17.google.protobuf.StructR\n" +
-	"envVarFrom\"T\n" +
+	"envVarFrom\x18> \x03(\v24.istio.operator.v1alpha1.PilotConfig.EnvVarFromEntryR\n" +
+	"envVarFrom\x1a\\\n" +
+	"\x16AutoscaleBehaviorEntry\x12\x10\n" +
+	"\x03key\x18\x01 \x01(\tR\x03key\x12,\n" +
+	"\x05value\x18\x02 \x01(\v2\x16.google.protobuf.ValueR\x05value:\x028\x01\x1a?\n" +
+	"\x11NodeSelectorEntry\x12\x10\n" +
+	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\x1aC\n" +
+	"\x15DeploymentLabelsEntry\x12\x10\n" +
+	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\x1a<\n" +
+	"\x0ePodLabelsEntry\x12\x10\n" +
+	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\x1a6\n" +
+	"\bEnvEntry\x12\x10\n" +
+	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\x1aA\n" +
+	"\x13PodAnnotationsEntry\x12\x10\n" +
+	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\x1aE\n" +
+	"\x17ServiceAnnotationsEntry\x12\x10\n" +
+	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\x1aL\n" +
+	"\x1eServiceAccountAnnotationsEntry\x12\x10\n" +
+	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\x1a]\n" +
+	"\x17ExtraContainerArgsEntry\x12\x10\n" +
+	"\x03key\x18\x01 \x01(\tR\x03key\x12,\n" +
+	"\x05value\x18\x02 \x01(\v2\x16.google.protobuf.ValueR\x05value:\x028\x01\x1aU\n" +
+	"\x0fEnvVarFromEntry\x12\x10\n" +
+	"\x03key\x18\x01 \x01(\tR\x03key\x12,\n" +
+	"\x05value\x18\x02 \x01(\v2\x16.google.protobuf.ValueR\x05value:\x028\x01\"T\n" +
 	"\x1aPilotTaintControllerConfig\x12\x18\n" +
 	"\aenabled\x18\x01 \x01(\bR\aenabled\x12\x1c\n" +
 	"\tnamespace\x18\x02 \x01(\tR\tnamespace\"\xc6\x01\n" +
 	"\x12PilotIngressConfig\x12&\n" +
 	"\x0eingressService\x18\x01 \x01(\tR\x0eingressService\x12d\n" +
 	"\x15ingressControllerMode\x18\x02 \x01(\x0e2..istio.operator.v1alpha1.ingressControllerModeR\x15ingressControllerMode\x12\"\n" +
-	"\fingressClass\x18\x03 \x01(\tR\fingressClass\"I\n" +
-	"\x11PilotPolicyConfig\x124\n" +
-	"\aenabled\x18\x01 \x01(\v2\x1a.google.protobuf.BoolValueR\aenabled\"\x83\x01\n" +
-	"\x0fTelemetryConfig\x124\n" +
-	"\aenabled\x18\x01 \x01(\v2\x1a.google.protobuf.BoolValueR\aenabled\x12:\n" +
-	"\x02v2\x18\x03 \x01(\v2*.istio.operator.v1alpha1.TelemetryV2ConfigR\x02v2\"\xf8\x01\n" +
-	"\x11TelemetryV2Config\x124\n" +
-	"\aenabled\x18\x01 \x01(\v2\x1a.google.protobuf.BoolValueR\aenabled\x12T\n" +
+	"\fingressClass\x18\x03 \x01(\tR\fingressClass\"-\n" +
+	"\x11PilotPolicyConfig\x12\x18\n" +
+	"\aenabled\x18\x01 \x01(\bR\aenabled\"g\n" +
+	"\x0fTelemetryConfig\x12\x18\n" +
+	"\aenabled\x18\x01 \x01(\bR\aenabled\x12:\n" +
+	"\x02v2\x18\x03 \x01(\v2*.istio.operator.v1alpha1.TelemetryV2ConfigR\x02v2\"\xdc\x01\n" +
+	"\x11TelemetryV2Config\x12\x18\n" +
+	"\aenabled\x18\x01 \x01(\bR\aenabled\x12T\n" +
 	"\n" +
 	"prometheus\x18\x02 \x01(\v24.istio.operator.v1alpha1.TelemetryV2PrometheusConfigR\n" +
 	"prometheus\x12W\n" +
-	"\vstackdriver\x18\x03 \x01(\v25.istio.operator.v1alpha1.TelemetryV2StackDriverConfigR\vstackdriver\"S\n" +
-	"\x1bTelemetryV2PrometheusConfig\x124\n" +
-	"\aenabled\x18\x01 \x01(\v2\x1a.google.protobuf.BoolValueR\aenabled\"T\n" +
-	"\x1cTelemetryV2StackDriverConfig\x124\n" +
-	"\aenabled\x18\x01 \x01(\v2\x1a.google.protobuf.BoolValueR\aenabled\"\x8d\x01\n" +
+	"\vstackdriver\x18\x03 \x01(\v25.istio.operator.v1alpha1.TelemetryV2StackDriverConfigR\vstackdriver\"7\n" +
+	"\x1bTelemetryV2PrometheusConfig\x12\x18\n" +
+	"\aenabled\x18\x01 \x01(\bR\aenabled\"8\n" +
+	"\x1cTelemetryV2StackDriverConfig\x12\x18\n" +
+	"\aenabled\x18\x01 \x01(\bR\aenabled\"\x8d\x01\n" +
 	"\vPortsConfig\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12\x12\n" +
 	"\x04port\x18\x02 \x01(\x05R\x04port\x12\x1a\n" +
@@ -5807,22 +5899,22 @@ const file_pkg_apis_values_types_proto_rawDesc = "" +
 	"\n" +
 	"targetPort\x18\x04 \x01(\x05R\n" +
 	"targetPort\x12\x1a\n" +
-	"\bprotocol\x18\x05 \x01(\tR\bprotocol\"\xca\t\n" +
+	"\bprotocol\x18\x05 \x01(\tR\bprotocol\"\xf6\b\n" +
 	"\vProxyConfig\x12\x1e\n" +
 	"\n" +
 	"autoInject\x18\x04 \x01(\tR\n" +
 	"autoInject\x12$\n" +
 	"\rclusterDomain\x18\x05 \x01(\tR\rclusterDomain\x12,\n" +
-	"\x11componentLogLevel\x18\x06 \x01(\tR\x11componentLogLevel\x12F\n" +
-	"\x0eenableCoreDump\x18\t \x01(\v2\x1a.google.protobuf.BoolValueB\x02\x18\x01R\x0eenableCoreDump\x120\n" +
+	"\x11componentLogLevel\x18\x06 \x01(\tR\x11componentLogLevel\x12*\n" +
+	"\x0eenableCoreDump\x18\t \x01(\bB\x02\x18\x01R\x0eenableCoreDump\x120\n" +
 	"\x13excludeInboundPorts\x18\f \x01(\tR\x13excludeInboundPorts\x12(\n" +
 	"\x0fexcludeIPRanges\x18\r \x01(\tR\x0fexcludeIPRanges\x12\x14\n" +
 	"\x05image\x18\x0e \x01(\tR\x05image\x12(\n" +
 	"\x0fincludeIPRanges\x18\x10 \x01(\tR\x0fincludeIPRanges\x12\x1a\n" +
 	"\blogLevel\x18\x12 \x01(\tR\blogLevel\x12&\n" +
-	"\x0eoutlierLogPath\x18* \x01(\tR\x0eoutlierLogPath\x12:\n" +
+	"\x0eoutlierLogPath\x18* \x01(\tR\x0eoutlierLogPath\x12\x1e\n" +
 	"\n" +
-	"privileged\x18\x13 \x01(\v2\x1a.google.protobuf.BoolValueR\n" +
+	"privileged\x18\x13 \x01(\bR\n" +
 	"privileged\x12B\n" +
 	"\x1creadinessInitialDelaySeconds\x18\x14 \x01(\rR\x1creadinessInitialDelaySeconds\x126\n" +
 	"\x16readinessPeriodSeconds\x18\x15 \x01(\rR\x16readinessPeriodSeconds\x12<\n" +
@@ -5834,37 +5926,47 @@ const file_pkg_apis_values_types_proto_rawDesc = "" +
 	"\tresources\x18\x18 \x01(\v2\".istio.operator.v1alpha1.ResourcesB\x02\x18\x01R\tresources\x127\n" +
 	"\x06tracer\x18\x19 \x01(\x0e2\x1f.istio.operator.v1alpha1.tracerR\x06tracer\x122\n" +
 	"\x14excludeOutboundPorts\x18\x1c \x01(\tR\x14excludeOutboundPorts\x12;\n" +
-	"\tlifecycle\x18$ \x01(\v2\x1d.k8s.io.api.core.v1.LifecycleR\tlifecycle\x12h\n" +
-	"\x1fholdApplicationUntilProxyStarts\x18% \x01(\v2\x1a.google.protobuf.BoolValueB\x02\x18\x01R\x1fholdApplicationUntilProxyStarts\x120\n" +
+	"\tlifecycle\x18$ \x01(\v2\x1d.k8s.io.api.core.v1.LifecycleR\tlifecycle\x12L\n" +
+	"\x1fholdApplicationUntilProxyStarts\x18% \x01(\bB\x02\x18\x01R\x1fholdApplicationUntilProxyStarts\x120\n" +
 	"\x13includeInboundPorts\x18& \x01(\tR\x13includeInboundPorts\x122\n" +
-	"\x14includeOutboundPorts\x18' \x01(\tR\x14includeOutboundPorts\"p\n" +
-	"\fStartupProbe\x124\n" +
-	"\aenabled\x18\x01 \x01(\v2\x1a.google.protobuf.BoolValueR\aenabled\x12*\n" +
+	"\x14includeOutboundPorts\x18' \x01(\tR\x14includeOutboundPorts\"T\n" +
+	"\fStartupProbe\x12\x18\n" +
+	"\aenabled\x18\x01 \x01(\bR\aenabled\x12*\n" +
 	"\x10failureThreshold\x18\x02 \x01(\rR\x10failureThreshold\"m\n" +
 	"\x0fProxyInitConfig\x12\x14\n" +
 	"\x05image\x18\x01 \x01(\tR\x05image\x12D\n" +
 	"\tresources\x18\x05 \x01(\v2\".istio.operator.v1alpha1.ResourcesB\x02\x18\x01R\tresources\"C\n" +
 	"\x17ResourcesRequestsConfig\x12\x10\n" +
 	"\x03cpu\x18\x01 \x01(\tR\x03cpu\x12\x16\n" +
-	"\x06memory\x18\x02 \x01(\tR\x06memory\">\n" +
-	"\tSDSConfig\x121\n" +
-	"\x05token\x18\x05 \x01(\v2\x17.google.protobuf.StructB\x02\x18\x01R\x05token\"`\n" +
+	"\x06memory\x18\x02 \x01(\tR\x06memory\"\xa6\x01\n" +
+	"\tSDSConfig\x12G\n" +
+	"\x05token\x18\x05 \x03(\v2-.istio.operator.v1alpha1.SDSConfig.TokenEntryB\x02\x18\x01R\x05token\x1aP\n" +
+	"\n" +
+	"TokenEntry\x12\x10\n" +
+	"\x03key\x18\x01 \x01(\tR\x03key\x12,\n" +
+	"\x05value\x18\x02 \x01(\v2\x16.google.protobuf.ValueR\x05value:\x028\x01\"`\n" +
 	"\fSecretVolume\x12\x1c\n" +
 	"\tmountPath\x18\x01 \x01(\tR\tmountPath\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x12\x1e\n" +
 	"\n" +
 	"secretName\x18\x03 \x01(\tR\n" +
-	"secretName\"\x91\x05\n" +
-	"\x15SidecarInjectorConfig\x12X\n" +
-	"\x19enableNamespacesByDefault\x18\x02 \x01(\v2\x1a.google.protobuf.BoolValueR\x19enableNamespacesByDefault\x12.\n" +
+	"secretName\"\xcd\x06\n" +
+	"\x15SidecarInjectorConfig\x12<\n" +
+	"\x19enableNamespacesByDefault\x18\x02 \x01(\bR\x19enableNamespacesByDefault\x12.\n" +
 	"\x12reinvocationPolicy\x18\x03 \x01(\tR\x12reinvocationPolicy\x12e\n" +
 	"\x13neverInjectSelector\x18\v \x03(\v23.k8s.io.apimachinery.pkg.apis.meta.v1.LabelSelectorR\x13neverInjectSelector\x12g\n" +
-	"\x14alwaysInjectSelector\x18\f \x03(\v23.k8s.io.apimachinery.pkg.apis.meta.v1.LabelSelectorR\x14alwaysInjectSelector\x12L\n" +
-	"\x13rewriteAppHTTPProbe\x18\x10 \x01(\v2\x1a.google.protobuf.BoolValueR\x13rewriteAppHTTPProbe\x12I\n" +
-	"\x13injectedAnnotations\x18\x13 \x01(\v2\x17.google.protobuf.StructR\x13injectedAnnotations\x12\"\n" +
-	"\finjectionURL\x18\x16 \x01(\tR\finjectionURL\x125\n" +
-	"\ttemplates\x18\x17 \x01(\v2\x17.google.protobuf.StructR\ttemplates\x12*\n" +
-	"\x10defaultTemplates\x18\x18 \x03(\tR\x10defaultTemplates\"\xbd\x02\n" +
+	"\x14alwaysInjectSelector\x18\f \x03(\v23.k8s.io.apimachinery.pkg.apis.meta.v1.LabelSelectorR\x14alwaysInjectSelector\x120\n" +
+	"\x13rewriteAppHTTPProbe\x18\x10 \x01(\bR\x13rewriteAppHTTPProbe\x12y\n" +
+	"\x13injectedAnnotations\x18\x13 \x03(\v2G.istio.operator.v1alpha1.SidecarInjectorConfig.InjectedAnnotationsEntryR\x13injectedAnnotations\x12\"\n" +
+	"\finjectionURL\x18\x16 \x01(\tR\finjectionURL\x12[\n" +
+	"\ttemplates\x18\x17 \x03(\v2=.istio.operator.v1alpha1.SidecarInjectorConfig.TemplatesEntryR\ttemplates\x12*\n" +
+	"\x10defaultTemplates\x18\x18 \x03(\tR\x10defaultTemplates\x1aF\n" +
+	"\x18InjectedAnnotationsEntry\x12\x10\n" +
+	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\x1aT\n" +
+	"\x0eTemplatesEntry\x12\x10\n" +
+	"\x03key\x18\x01 \x01(\tR\x03key\x12,\n" +
+	"\x05value\x18\x02 \x01(\v2\x16.google.protobuf.ValueR\x05value:\x028\x01\"\xbd\x02\n" +
 	"\fTracerConfig\x12F\n" +
 	"\adatadog\x18\x01 \x01(\v2,.istio.operator.v1alpha1.TracerDatadogConfigR\adatadog\x12L\n" +
 	"\tlightstep\x18\x02 \x01(\v2..istio.operator.v1alpha1.TracerLightStepConfigR\tlightstep\x12C\n" +
@@ -5876,26 +5978,26 @@ const file_pkg_apis_values_types_proto_rawDesc = "" +
 	"\aaddress\x18\x01 \x01(\tR\aaddress\x12 \n" +
 	"\vaccessToken\x18\x02 \x01(\tR\vaccessToken\".\n" +
 	"\x12TracerZipkinConfig\x12\x18\n" +
-	"\aaddress\x18\x01 \x01(\tR\aaddress\"\xf5\x01\n" +
-	"\x17TracerStackdriverConfig\x120\n" +
-	"\x05debug\x18\x01 \x01(\v2\x1a.google.protobuf.BoolValueR\x05debug\x124\n" +
+	"\aaddress\x18\x01 \x01(\tR\aaddress\"\xd9\x01\n" +
+	"\x17TracerStackdriverConfig\x12\x14\n" +
+	"\x05debug\x18\x01 \x01(\bR\x05debug\x124\n" +
 	"\x15maxNumberOfAttributes\x18\x02 \x01(\rR\x15maxNumberOfAttributes\x126\n" +
 	"\x16maxNumberOfAnnotations\x18\x03 \x01(\rR\x16maxNumberOfAnnotations\x12:\n" +
-	"\x18maxNumberOfMessageEvents\x18\x04 \x01(\rR\x18maxNumberOfMessageEvents\"\xea\x02\n" +
+	"\x18maxNumberOfMessageEvents\x18\x04 \x01(\rR\x18maxNumberOfMessageEvents\"\x96\x02\n" +
 	"\n" +
-	"BaseConfig\x12J\n" +
-	"\x12enableCRDTemplates\x18\x01 \x01(\v2\x1a.google.protobuf.BoolValueR\x12enableCRDTemplates\x12\"\n" +
+	"BaseConfig\x12.\n" +
+	"\x12enableCRDTemplates\x18\x01 \x01(\bR\x12enableCRDTemplates\x12\"\n" +
 	"\fexcludedCRDs\x18\x06 \x03(\tR\fexcludedCRDs\x12$\n" +
-	"\rvalidationURL\x18\x02 \x01(\tR\rvalidationURL\x12P\n" +
-	"\x15enableIstioConfigCRDs\x18\x03 \x01(\v2\x1a.google.protobuf.BoolValueR\x15enableIstioConfigCRDs\x12D\n" +
-	"\x0fvalidateGateway\x18\x04 \x01(\v2\x1a.google.protobuf.BoolValueR\x0fvalidateGateway\x12.\n" +
-	"\x12validationCABundle\x18\x05 \x01(\tR\x12validationCABundle\"\x9e\x02\n" +
+	"\rvalidationURL\x18\x02 \x01(\tR\rvalidationURL\x124\n" +
+	"\x15enableIstioConfigCRDs\x18\x03 \x01(\bR\x15enableIstioConfigCRDs\x12(\n" +
+	"\x0fvalidateGateway\x18\x04 \x01(\bR\x0fvalidateGateway\x12.\n" +
+	"\x12validationCABundle\x18\x05 \x01(\tR\x12validationCABundle\"\xe6\x01\n" +
 	"\x12IstiodRemoteConfig\x12\"\n" +
 	"\finjectionURL\x18\x01 \x01(\tR\finjectionURL\x12$\n" +
 	"\rinjectionPath\x18\x02 \x01(\tR\rinjectionPath\x12,\n" +
-	"\x11injectionCABundle\x18\x03 \x01(\tR\x11injectionCABundle\x124\n" +
-	"\aenabled\x18\x05 \x01(\v2\x1a.google.protobuf.BoolValueR\aenabled\x12Z\n" +
-	"\x1aenabledLocalInjectorIstiod\x18\x06 \x01(\v2\x1a.google.protobuf.BoolValueR\x1aenabledLocalInjectorIstiod\"\xd7\b\n" +
+	"\x11injectionCABundle\x18\x03 \x01(\tR\x11injectionCABundle\x12\x18\n" +
+	"\aenabled\x18\x05 \x01(\bR\aenabled\x12>\n" +
+	"\x1aenabledLocalInjectorIstiod\x18\x06 \x01(\bR\x1aenabledLocalInjectorIstiod\"\xd7\b\n" +
 	"\x06Values\x124\n" +
 	"\x03cni\x18\x02 \x01(\v2\".istio.operator.v1alpha1.CNIConfigR\x03cni\x12C\n" +
 	"\bgateways\x18\x05 \x01(\v2'.istio.operator.v1alpha1.GatewaysConfigR\bgateways\x12=\n" +
@@ -5918,9 +6020,9 @@ const file_pkg_apis_values_types_proto_rawDesc = "" +
 	"\aprofile\x18* \x01(\tR\aprofile\x122\n" +
 	"\x14compatibilityVersion\x18+ \x01(\tR\x14compatibilityVersion\x12O\n" +
 	"\fexperimental\x18, \x01(\v2+.istio.operator.v1alpha1.ExperimentalConfigR\fexperimental\x12>\n" +
-	"\x0egatewayClasses\x18- \x01(\v2\x16.google.protobuf.ValueR\x0egatewayClasses\"h\n" +
-	"\x12ExperimentalConfig\x12R\n" +
-	"\x16stableValidationPolicy\x18\x01 \x01(\v2\x1a.google.protobuf.BoolValueR\x16stableValidationPolicy\"\x8c\x01\n" +
+	"\x0egatewayClasses\x18- \x01(\v2\x16.google.protobuf.ValueR\x0egatewayClasses\"L\n" +
+	"\x12ExperimentalConfig\x126\n" +
+	"\x16stableValidationPolicy\x18\x01 \x01(\bR\x16stableValidationPolicy\"\x8c\x01\n" +
 	"\vIntOrString\x12\x12\n" +
 	"\x04type\x18\x01 \x01(\x03R\x04type\x123\n" +
 	"\x06intVal\x18\x02 \x01(\v2\x1b.google.protobuf.Int32ValueR\x06intVal\x124\n" +
@@ -5932,9 +6034,9 @@ const file_pkg_apis_values_types_proto_rawDesc = "" +
 	"\fnodeSelector\x18\x04 \x01(\v2 .k8s.io.api.core.v1.NodeSelectorR\fnodeSelector\x12>\n" +
 	"\n" +
 	"toleration\x18\x05 \x03(\v2\x1e.k8s.io.api.core.v1.TolerationR\n" +
-	"toleration\"K\n" +
-	"\x13NetworkPolicyConfig\x124\n" +
-	"\aenabled\x18\x01 \x01(\v2\x1a.google.protobuf.BoolValueR\aenabled*C\n" +
+	"toleration\"/\n" +
+	"\x13NetworkPolicyConfig\x12\x18\n" +
+	"\aenabled\x18\x01 \x01(\bR\aenabled*C\n" +
 	"\rResourceScope\x12\r\n" +
 	"\tundefined\x10\x00\x12\a\n" +
 	"\x03all\x10\x01\x12\v\n" +
@@ -5968,7 +6070,7 @@ func file_pkg_apis_values_types_proto_rawDescGZIP() []byte {
 }
 
 var file_pkg_apis_values_types_proto_enumTypes = make([]protoimpl.EnumInfo, 4)
-var file_pkg_apis_values_types_proto_msgTypes = make([]protoimpl.MessageInfo, 52)
+var file_pkg_apis_values_types_proto_msgTypes = make([]protoimpl.MessageInfo, 86)
 var file_pkg_apis_values_types_proto_goTypes = []any{
 	(ResourceScope)(0),                       // 0: istio.operator.v1alpha1.ResourceScope
 	(IngressControllerMode)(0),               // 1: istio.operator.v1alpha1.ingressControllerMode
@@ -6022,229 +6124,217 @@ var file_pkg_apis_values_types_proto_goTypes = []any{
 	(*IntOrString)(nil),                      // 49: istio.operator.v1alpha1.IntOrString
 	(*WaypointConfig)(nil),                   // 50: istio.operator.v1alpha1.WaypointConfig
 	(*NetworkPolicyConfig)(nil),              // 51: istio.operator.v1alpha1.NetworkPolicyConfig
-	nil,                                      // 52: istio.operator.v1alpha1.Resources.LimitsEntry
-	nil,                                      // 53: istio.operator.v1alpha1.Resources.RequestsEntry
-	nil,                                      // 54: istio.operator.v1alpha1.EgressGatewayConfig.LabelsEntry
-	nil,                                      // 55: istio.operator.v1alpha1.IngressGatewayConfig.LabelsEntry
-	(*wrapperspb.BoolValue)(nil),             // 56: google.protobuf.BoolValue
-	(*structpb.Value)(nil),                   // 57: google.protobuf.Value
-	(*v1.Affinity)(nil),                      // 58: k8s.io.api.core.v1.Affinity
-	(*structpb.Struct)(nil),                  // 59: google.protobuf.Struct
-	(*v1.SeccompProfile)(nil),                // 60: k8s.io.api.core.v1.SeccompProfile
-	(*v11.LabelSelector)(nil),                // 61: k8s.io.apimachinery.pkg.apis.meta.v1.LabelSelector
-	(*v1.Toleration)(nil),                    // 62: k8s.io.api.core.v1.Toleration
-	(*durationpb.Duration)(nil),              // 63: google.protobuf.Duration
-	(*v1.TopologySpreadConstraint)(nil),      // 64: k8s.io.api.core.v1.TopologySpreadConstraint
-	(*v1.VolumeMount)(nil),                   // 65: k8s.io.api.core.v1.VolumeMount
-	(*v1.Volume)(nil),                        // 66: k8s.io.api.core.v1.Volume
-	(*v1.Lifecycle)(nil),                     // 67: k8s.io.api.core.v1.Lifecycle
-	(*wrapperspb.Int32Value)(nil),            // 68: google.protobuf.Int32Value
-	(*wrapperspb.StringValue)(nil),           // 69: google.protobuf.StringValue
-	(*v1.NodeSelector)(nil),                  // 70: k8s.io.api.core.v1.NodeSelector
+	nil,                                      // 52: istio.operator.v1alpha1.CNIConfig.EnvEntry
+	nil,                                      // 53: istio.operator.v1alpha1.CNIConfig.DaemonSetLabelsEntry
+	nil,                                      // 54: istio.operator.v1alpha1.CNIConfig.PodAnnotationsEntry
+	nil,                                      // 55: istio.operator.v1alpha1.CNIConfig.PodLabelsEntry
+	nil,                                      // 56: istio.operator.v1alpha1.Resources.LimitsEntry
+	nil,                                      // 57: istio.operator.v1alpha1.Resources.RequestsEntry
+	nil,                                      // 58: istio.operator.v1alpha1.ServiceAccount.AnnotationsEntry
+	nil,                                      // 59: istio.operator.v1alpha1.EgressGatewayConfig.EnvEntry
+	nil,                                      // 60: istio.operator.v1alpha1.EgressGatewayConfig.LabelsEntry
+	nil,                                      // 61: istio.operator.v1alpha1.EgressGatewayConfig.NodeSelectorEntry
+	nil,                                      // 62: istio.operator.v1alpha1.EgressGatewayConfig.PodAnnotationsEntry
+	nil,                                      // 63: istio.operator.v1alpha1.EgressGatewayConfig.ServiceAnnotationsEntry
+	nil,                                      // 64: istio.operator.v1alpha1.EgressGatewayConfig.ConfigVolumesEntry
+	nil,                                      // 65: istio.operator.v1alpha1.EgressGatewayConfig.AdditionalContainersEntry
+	nil,                                      // 66: istio.operator.v1alpha1.GlobalConfig.DefaultNodeSelectorEntry
+	nil,                                      // 67: istio.operator.v1alpha1.GlobalConfig.MeshNetworksEntry
+	nil,                                      // 68: istio.operator.v1alpha1.IngressGatewayConfig.EnvEntry
+	nil,                                      // 69: istio.operator.v1alpha1.IngressGatewayConfig.LabelsEntry
+	nil,                                      // 70: istio.operator.v1alpha1.IngressGatewayConfig.NodeSelectorEntry
+	nil,                                      // 71: istio.operator.v1alpha1.IngressGatewayConfig.PodAnnotationsEntry
+	nil,                                      // 72: istio.operator.v1alpha1.IngressGatewayConfig.ResourcesEntry
+	nil,                                      // 73: istio.operator.v1alpha1.IngressGatewayConfig.ServiceAnnotationsEntry
+	nil,                                      // 74: istio.operator.v1alpha1.IngressGatewayConfig.IngressPortsEntry
+	nil,                                      // 75: istio.operator.v1alpha1.IngressGatewayConfig.AdditionalContainersEntry
+	nil,                                      // 76: istio.operator.v1alpha1.IngressGatewayConfig.ConfigVolumesEntry
+	nil,                                      // 77: istio.operator.v1alpha1.PilotConfig.AutoscaleBehaviorEntry
+	nil,                                      // 78: istio.operator.v1alpha1.PilotConfig.NodeSelectorEntry
+	nil,                                      // 79: istio.operator.v1alpha1.PilotConfig.DeploymentLabelsEntry
+	nil,                                      // 80: istio.operator.v1alpha1.PilotConfig.PodLabelsEntry
+	nil,                                      // 81: istio.operator.v1alpha1.PilotConfig.EnvEntry
+	nil,                                      // 82: istio.operator.v1alpha1.PilotConfig.PodAnnotationsEntry
+	nil,                                      // 83: istio.operator.v1alpha1.PilotConfig.ServiceAnnotationsEntry
+	nil,                                      // 84: istio.operator.v1alpha1.PilotConfig.ServiceAccountAnnotationsEntry
+	nil,                                      // 85: istio.operator.v1alpha1.PilotConfig.ExtraContainerArgsEntry
+	nil,                                      // 86: istio.operator.v1alpha1.PilotConfig.EnvVarFromEntry
+	nil,                                      // 87: istio.operator.v1alpha1.SDSConfig.TokenEntry
+	nil,                                      // 88: istio.operator.v1alpha1.SidecarInjectorConfig.InjectedAnnotationsEntry
+	nil,                                      // 89: istio.operator.v1alpha1.SidecarInjectorConfig.TemplatesEntry
+	(*structpb.Value)(nil),                   // 90: google.protobuf.Value
+	(*v1.Affinity)(nil),                      // 91: k8s.io.api.core.v1.Affinity
+	(*v1.SeccompProfile)(nil),                // 92: k8s.io.api.core.v1.SeccompProfile
+	(*v11.LabelSelector)(nil),                // 93: k8s.io.apimachinery.pkg.apis.meta.v1.LabelSelector
+	(*v1.Toleration)(nil),                    // 94: k8s.io.api.core.v1.Toleration
+	(*v11.Duration)(nil),                     // 95: k8s.io.apimachinery.pkg.apis.meta.v1.Duration
+	(*v1.TopologySpreadConstraint)(nil),      // 96: k8s.io.api.core.v1.TopologySpreadConstraint
+	(*v1.VolumeMount)(nil),                   // 97: k8s.io.api.core.v1.VolumeMount
+	(*v1.Volume)(nil),                        // 98: k8s.io.api.core.v1.Volume
+	(*v1.Lifecycle)(nil),                     // 99: k8s.io.api.core.v1.Lifecycle
+	(*wrapperspb.Int32Value)(nil),            // 100: google.protobuf.Int32Value
+	(*wrapperspb.StringValue)(nil),           // 101: google.protobuf.StringValue
+	(*v1.NodeSelector)(nil),                  // 102: k8s.io.api.core.v1.NodeSelector
 }
 var file_pkg_apis_values_types_proto_depIdxs = []int32{
-	56,  // 0: istio.operator.v1alpha1.CNIConfig.enabled:type_name -> google.protobuf.BoolValue
-	57,  // 1: istio.operator.v1alpha1.CNIConfig.tag:type_name -> google.protobuf.Value
-	58,  // 2: istio.operator.v1alpha1.CNIConfig.affinity:type_name -> k8s.io.api.core.v1.Affinity
-	59,  // 3: istio.operator.v1alpha1.CNIConfig.env:type_name -> google.protobuf.Struct
-	59,  // 4: istio.operator.v1alpha1.CNIConfig.daemonSetLabels:type_name -> google.protobuf.Struct
-	59,  // 5: istio.operator.v1alpha1.CNIConfig.podAnnotations:type_name -> google.protobuf.Struct
-	59,  // 6: istio.operator.v1alpha1.CNIConfig.podLabels:type_name -> google.protobuf.Struct
-	20,  // 7: istio.operator.v1alpha1.CNIConfig.logging:type_name -> istio.operator.v1alpha1.GlobalLoggingConfig
-	8,   // 8: istio.operator.v1alpha1.CNIConfig.repair:type_name -> istio.operator.v1alpha1.CNIRepairConfig
-	56,  // 9: istio.operator.v1alpha1.CNIConfig.chained:type_name -> google.protobuf.BoolValue
-	9,   // 10: istio.operator.v1alpha1.CNIConfig.resource_quotas:type_name -> istio.operator.v1alpha1.ResourceQuotas
-	11,  // 11: istio.operator.v1alpha1.CNIConfig.resources:type_name -> istio.operator.v1alpha1.Resources
-	56,  // 12: istio.operator.v1alpha1.CNIConfig.privileged:type_name -> google.protobuf.BoolValue
-	60,  // 13: istio.operator.v1alpha1.CNIConfig.seccompProfile:type_name -> k8s.io.api.core.v1.SeccompProfile
-	7,   // 14: istio.operator.v1alpha1.CNIConfig.ambient:type_name -> istio.operator.v1alpha1.CNIAmbientConfig
-	49,  // 15: istio.operator.v1alpha1.CNIConfig.rollingMaxUnavailable:type_name -> istio.operator.v1alpha1.IntOrString
-	56,  // 16: istio.operator.v1alpha1.CNIConfig.istioOwnedCNIConfig:type_name -> google.protobuf.BoolValue
-	56,  // 17: istio.operator.v1alpha1.CNIUsageConfig.enabled:type_name -> google.protobuf.BoolValue
-	56,  // 18: istio.operator.v1alpha1.CNIUsageConfig.chained:type_name -> google.protobuf.BoolValue
-	56,  // 19: istio.operator.v1alpha1.CNIAmbientConfig.enabled:type_name -> google.protobuf.BoolValue
-	56,  // 20: istio.operator.v1alpha1.CNIAmbientConfig.dnsCapture:type_name -> google.protobuf.BoolValue
-	56,  // 21: istio.operator.v1alpha1.CNIAmbientConfig.ipv6:type_name -> google.protobuf.BoolValue
-	56,  // 22: istio.operator.v1alpha1.CNIAmbientConfig.reconcileIptablesOnStartup:type_name -> google.protobuf.BoolValue
-	56,  // 23: istio.operator.v1alpha1.CNIRepairConfig.enabled:type_name -> google.protobuf.BoolValue
-	57,  // 24: istio.operator.v1alpha1.CNIRepairConfig.tag:type_name -> google.protobuf.Value
-	56,  // 25: istio.operator.v1alpha1.ResourceQuotas.enabled:type_name -> google.protobuf.BoolValue
-	52,  // 26: istio.operator.v1alpha1.Resources.limits:type_name -> istio.operator.v1alpha1.Resources.LimitsEntry
-	53,  // 27: istio.operator.v1alpha1.Resources.requests:type_name -> istio.operator.v1alpha1.Resources.RequestsEntry
-	59,  // 28: istio.operator.v1alpha1.ServiceAccount.annotations:type_name -> google.protobuf.Struct
-	56,  // 29: istio.operator.v1alpha1.DefaultPodDisruptionBudgetConfig.enabled:type_name -> google.protobuf.BoolValue
-	36,  // 30: istio.operator.v1alpha1.DefaultResourcesConfig.requests:type_name -> istio.operator.v1alpha1.ResourcesRequestsConfig
-	56,  // 31: istio.operator.v1alpha1.EgressGatewayConfig.autoscaleEnabled:type_name -> google.protobuf.BoolValue
-	10,  // 32: istio.operator.v1alpha1.EgressGatewayConfig.memory:type_name -> istio.operator.v1alpha1.TargetUtilizationConfig
-	10,  // 33: istio.operator.v1alpha1.EgressGatewayConfig.cpu:type_name -> istio.operator.v1alpha1.TargetUtilizationConfig
-	56,  // 34: istio.operator.v1alpha1.EgressGatewayConfig.customService:type_name -> google.protobuf.BoolValue
-	56,  // 35: istio.operator.v1alpha1.EgressGatewayConfig.enabled:type_name -> google.protobuf.BoolValue
-	59,  // 36: istio.operator.v1alpha1.EgressGatewayConfig.env:type_name -> google.protobuf.Struct
-	54,  // 37: istio.operator.v1alpha1.EgressGatewayConfig.labels:type_name -> istio.operator.v1alpha1.EgressGatewayConfig.LabelsEntry
-	59,  // 38: istio.operator.v1alpha1.EgressGatewayConfig.nodeSelector:type_name -> google.protobuf.Struct
-	59,  // 39: istio.operator.v1alpha1.EgressGatewayConfig.podAnnotations:type_name -> google.protobuf.Struct
-	61,  // 40: istio.operator.v1alpha1.EgressGatewayConfig.podAntiAffinityLabelSelector:type_name -> k8s.io.apimachinery.pkg.apis.meta.v1.LabelSelector
-	61,  // 41: istio.operator.v1alpha1.EgressGatewayConfig.podAntiAffinityTermLabelSelector:type_name -> k8s.io.apimachinery.pkg.apis.meta.v1.LabelSelector
-	32,  // 42: istio.operator.v1alpha1.EgressGatewayConfig.ports:type_name -> istio.operator.v1alpha1.PortsConfig
-	11,  // 43: istio.operator.v1alpha1.EgressGatewayConfig.resources:type_name -> istio.operator.v1alpha1.Resources
-	38,  // 44: istio.operator.v1alpha1.EgressGatewayConfig.secretVolumes:type_name -> istio.operator.v1alpha1.SecretVolume
-	59,  // 45: istio.operator.v1alpha1.EgressGatewayConfig.serviceAnnotations:type_name -> google.protobuf.Struct
-	62,  // 46: istio.operator.v1alpha1.EgressGatewayConfig.tolerations:type_name -> k8s.io.api.core.v1.Toleration
-	49,  // 47: istio.operator.v1alpha1.EgressGatewayConfig.rollingMaxSurge:type_name -> istio.operator.v1alpha1.IntOrString
-	49,  // 48: istio.operator.v1alpha1.EgressGatewayConfig.rollingMaxUnavailable:type_name -> istio.operator.v1alpha1.IntOrString
-	59,  // 49: istio.operator.v1alpha1.EgressGatewayConfig.configVolumes:type_name -> google.protobuf.Struct
-	59,  // 50: istio.operator.v1alpha1.EgressGatewayConfig.additionalContainers:type_name -> google.protobuf.Struct
-	56,  // 51: istio.operator.v1alpha1.EgressGatewayConfig.runAsRoot:type_name -> google.protobuf.BoolValue
-	12,  // 52: istio.operator.v1alpha1.EgressGatewayConfig.serviceAccount:type_name -> istio.operator.v1alpha1.ServiceAccount
-	15,  // 53: istio.operator.v1alpha1.GatewaysConfig.istio_egressgateway:type_name -> istio.operator.v1alpha1.EgressGatewayConfig
-	56,  // 54: istio.operator.v1alpha1.GatewaysConfig.enabled:type_name -> google.protobuf.BoolValue
-	21,  // 55: istio.operator.v1alpha1.GatewaysConfig.istio_ingressgateway:type_name -> istio.operator.v1alpha1.IngressGatewayConfig
-	57,  // 56: istio.operator.v1alpha1.GatewaysConfig.securityContext:type_name -> google.protobuf.Value
-	57,  // 57: istio.operator.v1alpha1.GatewaysConfig.seccompProfile:type_name -> google.protobuf.Value
-	4,   // 58: istio.operator.v1alpha1.GlobalConfig.arch:type_name -> istio.operator.v1alpha1.ArchConfig
-	56,  // 59: istio.operator.v1alpha1.GlobalConfig.configValidation:type_name -> google.protobuf.BoolValue
-	59,  // 60: istio.operator.v1alpha1.GlobalConfig.defaultNodeSelector:type_name -> google.protobuf.Struct
-	13,  // 61: istio.operator.v1alpha1.GlobalConfig.defaultPodDisruptionBudget:type_name -> istio.operator.v1alpha1.DefaultPodDisruptionBudgetConfig
-	14,  // 62: istio.operator.v1alpha1.GlobalConfig.defaultResources:type_name -> istio.operator.v1alpha1.DefaultResourcesConfig
-	62,  // 63: istio.operator.v1alpha1.GlobalConfig.defaultTolerations:type_name -> k8s.io.api.core.v1.Toleration
-	56,  // 64: istio.operator.v1alpha1.GlobalConfig.logAsJson:type_name -> google.protobuf.BoolValue
-	20,  // 65: istio.operator.v1alpha1.GlobalConfig.logging:type_name -> istio.operator.v1alpha1.GlobalLoggingConfig
-	59,  // 66: istio.operator.v1alpha1.GlobalConfig.meshNetworks:type_name -> google.protobuf.Struct
-	22,  // 67: istio.operator.v1alpha1.GlobalConfig.multiCluster:type_name -> istio.operator.v1alpha1.MultiClusterConfig
-	56,  // 68: istio.operator.v1alpha1.GlobalConfig.omitSidecarInjectorConfigMap:type_name -> google.protobuf.BoolValue
-	56,  // 69: istio.operator.v1alpha1.GlobalConfig.operatorManageWebhooks:type_name -> google.protobuf.BoolValue
-	33,  // 70: istio.operator.v1alpha1.GlobalConfig.proxy:type_name -> istio.operator.v1alpha1.ProxyConfig
-	35,  // 71: istio.operator.v1alpha1.GlobalConfig.proxy_init:type_name -> istio.operator.v1alpha1.ProxyInitConfig
-	37,  // 72: istio.operator.v1alpha1.GlobalConfig.sds:type_name -> istio.operator.v1alpha1.SDSConfig
-	57,  // 73: istio.operator.v1alpha1.GlobalConfig.tag:type_name -> google.protobuf.Value
-	40,  // 74: istio.operator.v1alpha1.GlobalConfig.tracer:type_name -> istio.operator.v1alpha1.TracerConfig
-	19,  // 75: istio.operator.v1alpha1.GlobalConfig.istiod:type_name -> istio.operator.v1alpha1.IstiodConfig
-	18,  // 76: istio.operator.v1alpha1.GlobalConfig.sts:type_name -> istio.operator.v1alpha1.STSConfig
-	56,  // 77: istio.operator.v1alpha1.GlobalConfig.mountMtlsCerts:type_name -> google.protobuf.BoolValue
-	56,  // 78: istio.operator.v1alpha1.GlobalConfig.externalIstiod:type_name -> google.protobuf.BoolValue
-	56,  // 79: istio.operator.v1alpha1.GlobalConfig.configCluster:type_name -> google.protobuf.BoolValue
-	50,  // 80: istio.operator.v1alpha1.GlobalConfig.waypoint:type_name -> istio.operator.v1alpha1.WaypointConfig
-	56,  // 81: istio.operator.v1alpha1.GlobalConfig.nativeNftables:type_name -> google.protobuf.BoolValue
-	51,  // 82: istio.operator.v1alpha1.GlobalConfig.networkPolicy:type_name -> istio.operator.v1alpha1.NetworkPolicyConfig
-	0,   // 83: istio.operator.v1alpha1.GlobalConfig.resourceScope:type_name -> istio.operator.v1alpha1.ResourceScope
-	56,  // 84: istio.operator.v1alpha1.IstiodConfig.enableAnalysis:type_name -> google.protobuf.BoolValue
-	56,  // 85: istio.operator.v1alpha1.IngressGatewayConfig.autoscaleEnabled:type_name -> google.protobuf.BoolValue
-	10,  // 86: istio.operator.v1alpha1.IngressGatewayConfig.memory:type_name -> istio.operator.v1alpha1.TargetUtilizationConfig
-	10,  // 87: istio.operator.v1alpha1.IngressGatewayConfig.cpu:type_name -> istio.operator.v1alpha1.TargetUtilizationConfig
-	56,  // 88: istio.operator.v1alpha1.IngressGatewayConfig.customService:type_name -> google.protobuf.BoolValue
-	56,  // 89: istio.operator.v1alpha1.IngressGatewayConfig.enabled:type_name -> google.protobuf.BoolValue
-	59,  // 90: istio.operator.v1alpha1.IngressGatewayConfig.env:type_name -> google.protobuf.Struct
-	55,  // 91: istio.operator.v1alpha1.IngressGatewayConfig.labels:type_name -> istio.operator.v1alpha1.IngressGatewayConfig.LabelsEntry
-	59,  // 92: istio.operator.v1alpha1.IngressGatewayConfig.nodeSelector:type_name -> google.protobuf.Struct
-	59,  // 93: istio.operator.v1alpha1.IngressGatewayConfig.podAnnotations:type_name -> google.protobuf.Struct
-	61,  // 94: istio.operator.v1alpha1.IngressGatewayConfig.podAntiAffinityLabelSelector:type_name -> k8s.io.apimachinery.pkg.apis.meta.v1.LabelSelector
-	61,  // 95: istio.operator.v1alpha1.IngressGatewayConfig.podAntiAffinityTermLabelSelector:type_name -> k8s.io.apimachinery.pkg.apis.meta.v1.LabelSelector
-	32,  // 96: istio.operator.v1alpha1.IngressGatewayConfig.ports:type_name -> istio.operator.v1alpha1.PortsConfig
-	59,  // 97: istio.operator.v1alpha1.IngressGatewayConfig.resources:type_name -> google.protobuf.Struct
-	38,  // 98: istio.operator.v1alpha1.IngressGatewayConfig.secretVolumes:type_name -> istio.operator.v1alpha1.SecretVolume
-	59,  // 99: istio.operator.v1alpha1.IngressGatewayConfig.serviceAnnotations:type_name -> google.protobuf.Struct
-	49,  // 100: istio.operator.v1alpha1.IngressGatewayConfig.rollingMaxSurge:type_name -> istio.operator.v1alpha1.IntOrString
-	49,  // 101: istio.operator.v1alpha1.IngressGatewayConfig.rollingMaxUnavailable:type_name -> istio.operator.v1alpha1.IntOrString
-	62,  // 102: istio.operator.v1alpha1.IngressGatewayConfig.tolerations:type_name -> k8s.io.api.core.v1.Toleration
-	59,  // 103: istio.operator.v1alpha1.IngressGatewayConfig.ingressPorts:type_name -> google.protobuf.Struct
-	59,  // 104: istio.operator.v1alpha1.IngressGatewayConfig.additionalContainers:type_name -> google.protobuf.Struct
-	59,  // 105: istio.operator.v1alpha1.IngressGatewayConfig.configVolumes:type_name -> google.protobuf.Struct
-	56,  // 106: istio.operator.v1alpha1.IngressGatewayConfig.runAsRoot:type_name -> google.protobuf.BoolValue
-	12,  // 107: istio.operator.v1alpha1.IngressGatewayConfig.serviceAccount:type_name -> istio.operator.v1alpha1.ServiceAccount
-	56,  // 108: istio.operator.v1alpha1.MultiClusterConfig.enabled:type_name -> google.protobuf.BoolValue
-	56,  // 109: istio.operator.v1alpha1.MultiClusterConfig.includeEnvoyFilter:type_name -> google.protobuf.BoolValue
-	3,   // 110: istio.operator.v1alpha1.OutboundTrafficPolicyConfig.mode:type_name -> istio.operator.v1alpha1.OutboundTrafficPolicyConfig.Mode
-	56,  // 111: istio.operator.v1alpha1.PilotConfig.enabled:type_name -> google.protobuf.BoolValue
-	56,  // 112: istio.operator.v1alpha1.PilotConfig.autoscaleEnabled:type_name -> google.protobuf.BoolValue
-	59,  // 113: istio.operator.v1alpha1.PilotConfig.autoscaleBehavior:type_name -> google.protobuf.Struct
-	11,  // 114: istio.operator.v1alpha1.PilotConfig.resources:type_name -> istio.operator.v1alpha1.Resources
-	10,  // 115: istio.operator.v1alpha1.PilotConfig.cpu:type_name -> istio.operator.v1alpha1.TargetUtilizationConfig
-	59,  // 116: istio.operator.v1alpha1.PilotConfig.nodeSelector:type_name -> google.protobuf.Struct
-	63,  // 117: istio.operator.v1alpha1.PilotConfig.keepaliveMaxServerConnectionAge:type_name -> google.protobuf.Duration
-	59,  // 118: istio.operator.v1alpha1.PilotConfig.deploymentLabels:type_name -> google.protobuf.Struct
-	59,  // 119: istio.operator.v1alpha1.PilotConfig.podLabels:type_name -> google.protobuf.Struct
-	56,  // 120: istio.operator.v1alpha1.PilotConfig.configMap:type_name -> google.protobuf.BoolValue
-	59,  // 121: istio.operator.v1alpha1.PilotConfig.env:type_name -> google.protobuf.Struct
-	58,  // 122: istio.operator.v1alpha1.PilotConfig.affinity:type_name -> k8s.io.api.core.v1.Affinity
-	49,  // 123: istio.operator.v1alpha1.PilotConfig.rollingMaxSurge:type_name -> istio.operator.v1alpha1.IntOrString
-	49,  // 124: istio.operator.v1alpha1.PilotConfig.rollingMaxUnavailable:type_name -> istio.operator.v1alpha1.IntOrString
-	62,  // 125: istio.operator.v1alpha1.PilotConfig.tolerations:type_name -> k8s.io.api.core.v1.Toleration
-	59,  // 126: istio.operator.v1alpha1.PilotConfig.podAnnotations:type_name -> google.protobuf.Struct
-	59,  // 127: istio.operator.v1alpha1.PilotConfig.serviceAnnotations:type_name -> google.protobuf.Struct
-	59,  // 128: istio.operator.v1alpha1.PilotConfig.serviceAccountAnnotations:type_name -> google.protobuf.Struct
-	57,  // 129: istio.operator.v1alpha1.PilotConfig.tag:type_name -> google.protobuf.Value
-	60,  // 130: istio.operator.v1alpha1.PilotConfig.seccompProfile:type_name -> k8s.io.api.core.v1.SeccompProfile
-	64,  // 131: istio.operator.v1alpha1.PilotConfig.topologySpreadConstraints:type_name -> k8s.io.api.core.v1.TopologySpreadConstraint
-	59,  // 132: istio.operator.v1alpha1.PilotConfig.extraContainerArgs:type_name -> google.protobuf.Struct
-	65,  // 133: istio.operator.v1alpha1.PilotConfig.volumeMounts:type_name -> k8s.io.api.core.v1.VolumeMount
-	66,  // 134: istio.operator.v1alpha1.PilotConfig.volumes:type_name -> k8s.io.api.core.v1.Volume
-	10,  // 135: istio.operator.v1alpha1.PilotConfig.memory:type_name -> istio.operator.v1alpha1.TargetUtilizationConfig
-	6,   // 136: istio.operator.v1alpha1.PilotConfig.cni:type_name -> istio.operator.v1alpha1.CNIUsageConfig
-	25,  // 137: istio.operator.v1alpha1.PilotConfig.taint:type_name -> istio.operator.v1alpha1.PilotTaintControllerConfig
-	46,  // 138: istio.operator.v1alpha1.PilotConfig.istiodRemote:type_name -> istio.operator.v1alpha1.IstiodRemoteConfig
-	59,  // 139: istio.operator.v1alpha1.PilotConfig.envVarFrom:type_name -> google.protobuf.Struct
-	1,   // 140: istio.operator.v1alpha1.PilotIngressConfig.ingressControllerMode:type_name -> istio.operator.v1alpha1.ingressControllerMode
-	56,  // 141: istio.operator.v1alpha1.PilotPolicyConfig.enabled:type_name -> google.protobuf.BoolValue
-	56,  // 142: istio.operator.v1alpha1.TelemetryConfig.enabled:type_name -> google.protobuf.BoolValue
-	29,  // 143: istio.operator.v1alpha1.TelemetryConfig.v2:type_name -> istio.operator.v1alpha1.TelemetryV2Config
-	56,  // 144: istio.operator.v1alpha1.TelemetryV2Config.enabled:type_name -> google.protobuf.BoolValue
-	30,  // 145: istio.operator.v1alpha1.TelemetryV2Config.prometheus:type_name -> istio.operator.v1alpha1.TelemetryV2PrometheusConfig
-	31,  // 146: istio.operator.v1alpha1.TelemetryV2Config.stackdriver:type_name -> istio.operator.v1alpha1.TelemetryV2StackDriverConfig
-	56,  // 147: istio.operator.v1alpha1.TelemetryV2PrometheusConfig.enabled:type_name -> google.protobuf.BoolValue
-	56,  // 148: istio.operator.v1alpha1.TelemetryV2StackDriverConfig.enabled:type_name -> google.protobuf.BoolValue
-	56,  // 149: istio.operator.v1alpha1.ProxyConfig.enableCoreDump:type_name -> google.protobuf.BoolValue
-	56,  // 150: istio.operator.v1alpha1.ProxyConfig.privileged:type_name -> google.protobuf.BoolValue
-	34,  // 151: istio.operator.v1alpha1.ProxyConfig.startupProbe:type_name -> istio.operator.v1alpha1.StartupProbe
-	11,  // 152: istio.operator.v1alpha1.ProxyConfig.resources:type_name -> istio.operator.v1alpha1.Resources
-	2,   // 153: istio.operator.v1alpha1.ProxyConfig.tracer:type_name -> istio.operator.v1alpha1.tracer
-	67,  // 154: istio.operator.v1alpha1.ProxyConfig.lifecycle:type_name -> k8s.io.api.core.v1.Lifecycle
-	56,  // 155: istio.operator.v1alpha1.ProxyConfig.holdApplicationUntilProxyStarts:type_name -> google.protobuf.BoolValue
-	56,  // 156: istio.operator.v1alpha1.StartupProbe.enabled:type_name -> google.protobuf.BoolValue
-	11,  // 157: istio.operator.v1alpha1.ProxyInitConfig.resources:type_name -> istio.operator.v1alpha1.Resources
-	59,  // 158: istio.operator.v1alpha1.SDSConfig.token:type_name -> google.protobuf.Struct
-	56,  // 159: istio.operator.v1alpha1.SidecarInjectorConfig.enableNamespacesByDefault:type_name -> google.protobuf.BoolValue
-	61,  // 160: istio.operator.v1alpha1.SidecarInjectorConfig.neverInjectSelector:type_name -> k8s.io.apimachinery.pkg.apis.meta.v1.LabelSelector
-	61,  // 161: istio.operator.v1alpha1.SidecarInjectorConfig.alwaysInjectSelector:type_name -> k8s.io.apimachinery.pkg.apis.meta.v1.LabelSelector
-	56,  // 162: istio.operator.v1alpha1.SidecarInjectorConfig.rewriteAppHTTPProbe:type_name -> google.protobuf.BoolValue
-	59,  // 163: istio.operator.v1alpha1.SidecarInjectorConfig.injectedAnnotations:type_name -> google.protobuf.Struct
-	59,  // 164: istio.operator.v1alpha1.SidecarInjectorConfig.templates:type_name -> google.protobuf.Struct
-	41,  // 165: istio.operator.v1alpha1.TracerConfig.datadog:type_name -> istio.operator.v1alpha1.TracerDatadogConfig
-	42,  // 166: istio.operator.v1alpha1.TracerConfig.lightstep:type_name -> istio.operator.v1alpha1.TracerLightStepConfig
-	43,  // 167: istio.operator.v1alpha1.TracerConfig.zipkin:type_name -> istio.operator.v1alpha1.TracerZipkinConfig
-	44,  // 168: istio.operator.v1alpha1.TracerConfig.stackdriver:type_name -> istio.operator.v1alpha1.TracerStackdriverConfig
-	56,  // 169: istio.operator.v1alpha1.TracerStackdriverConfig.debug:type_name -> google.protobuf.BoolValue
-	56,  // 170: istio.operator.v1alpha1.BaseConfig.enableCRDTemplates:type_name -> google.protobuf.BoolValue
-	56,  // 171: istio.operator.v1alpha1.BaseConfig.enableIstioConfigCRDs:type_name -> google.protobuf.BoolValue
-	56,  // 172: istio.operator.v1alpha1.BaseConfig.validateGateway:type_name -> google.protobuf.BoolValue
-	56,  // 173: istio.operator.v1alpha1.IstiodRemoteConfig.enabled:type_name -> google.protobuf.BoolValue
-	56,  // 174: istio.operator.v1alpha1.IstiodRemoteConfig.enabledLocalInjectorIstiod:type_name -> google.protobuf.BoolValue
-	5,   // 175: istio.operator.v1alpha1.Values.cni:type_name -> istio.operator.v1alpha1.CNIConfig
-	16,  // 176: istio.operator.v1alpha1.Values.gateways:type_name -> istio.operator.v1alpha1.GatewaysConfig
-	17,  // 177: istio.operator.v1alpha1.Values.global:type_name -> istio.operator.v1alpha1.GlobalConfig
-	24,  // 178: istio.operator.v1alpha1.Values.pilot:type_name -> istio.operator.v1alpha1.PilotConfig
-	57,  // 179: istio.operator.v1alpha1.Values.ztunnel:type_name -> google.protobuf.Value
-	28,  // 180: istio.operator.v1alpha1.Values.telemetry:type_name -> istio.operator.v1alpha1.TelemetryConfig
-	39,  // 181: istio.operator.v1alpha1.Values.sidecarInjectorWebhook:type_name -> istio.operator.v1alpha1.SidecarInjectorConfig
-	6,   // 182: istio.operator.v1alpha1.Values.istio_cni:type_name -> istio.operator.v1alpha1.CNIUsageConfig
-	57,  // 183: istio.operator.v1alpha1.Values.meshConfig:type_name -> google.protobuf.Value
-	45,  // 184: istio.operator.v1alpha1.Values.base:type_name -> istio.operator.v1alpha1.BaseConfig
-	46,  // 185: istio.operator.v1alpha1.Values.istiodRemote:type_name -> istio.operator.v1alpha1.IstiodRemoteConfig
-	48,  // 186: istio.operator.v1alpha1.Values.experimental:type_name -> istio.operator.v1alpha1.ExperimentalConfig
-	57,  // 187: istio.operator.v1alpha1.Values.gatewayClasses:type_name -> google.protobuf.Value
-	56,  // 188: istio.operator.v1alpha1.ExperimentalConfig.stableValidationPolicy:type_name -> google.protobuf.BoolValue
-	68,  // 189: istio.operator.v1alpha1.IntOrString.intVal:type_name -> google.protobuf.Int32Value
-	69,  // 190: istio.operator.v1alpha1.IntOrString.strVal:type_name -> google.protobuf.StringValue
-	11,  // 191: istio.operator.v1alpha1.WaypointConfig.resources:type_name -> istio.operator.v1alpha1.Resources
-	58,  // 192: istio.operator.v1alpha1.WaypointConfig.affinity:type_name -> k8s.io.api.core.v1.Affinity
-	64,  // 193: istio.operator.v1alpha1.WaypointConfig.topologySpreadConstraints:type_name -> k8s.io.api.core.v1.TopologySpreadConstraint
-	70,  // 194: istio.operator.v1alpha1.WaypointConfig.nodeSelector:type_name -> k8s.io.api.core.v1.NodeSelector
-	62,  // 195: istio.operator.v1alpha1.WaypointConfig.toleration:type_name -> k8s.io.api.core.v1.Toleration
-	56,  // 196: istio.operator.v1alpha1.NetworkPolicyConfig.enabled:type_name -> google.protobuf.BoolValue
-	197, // [197:197] is the sub-list for method output_type
-	197, // [197:197] is the sub-list for method input_type
-	197, // [197:197] is the sub-list for extension type_name
-	197, // [197:197] is the sub-list for extension extendee
-	0,   // [0:197] is the sub-list for field type_name
+	90,  // 0: istio.operator.v1alpha1.CNIConfig.tag:type_name -> google.protobuf.Value
+	91,  // 1: istio.operator.v1alpha1.CNIConfig.affinity:type_name -> k8s.io.api.core.v1.Affinity
+	52,  // 2: istio.operator.v1alpha1.CNIConfig.env:type_name -> istio.operator.v1alpha1.CNIConfig.EnvEntry
+	53,  // 3: istio.operator.v1alpha1.CNIConfig.daemonSetLabels:type_name -> istio.operator.v1alpha1.CNIConfig.DaemonSetLabelsEntry
+	54,  // 4: istio.operator.v1alpha1.CNIConfig.podAnnotations:type_name -> istio.operator.v1alpha1.CNIConfig.PodAnnotationsEntry
+	55,  // 5: istio.operator.v1alpha1.CNIConfig.podLabels:type_name -> istio.operator.v1alpha1.CNIConfig.PodLabelsEntry
+	20,  // 6: istio.operator.v1alpha1.CNIConfig.logging:type_name -> istio.operator.v1alpha1.GlobalLoggingConfig
+	8,   // 7: istio.operator.v1alpha1.CNIConfig.repair:type_name -> istio.operator.v1alpha1.CNIRepairConfig
+	9,   // 8: istio.operator.v1alpha1.CNIConfig.resource_quotas:type_name -> istio.operator.v1alpha1.ResourceQuotas
+	11,  // 9: istio.operator.v1alpha1.CNIConfig.resources:type_name -> istio.operator.v1alpha1.Resources
+	92,  // 10: istio.operator.v1alpha1.CNIConfig.seccompProfile:type_name -> k8s.io.api.core.v1.SeccompProfile
+	7,   // 11: istio.operator.v1alpha1.CNIConfig.ambient:type_name -> istio.operator.v1alpha1.CNIAmbientConfig
+	49,  // 12: istio.operator.v1alpha1.CNIConfig.rollingMaxUnavailable:type_name -> istio.operator.v1alpha1.IntOrString
+	90,  // 13: istio.operator.v1alpha1.CNIRepairConfig.tag:type_name -> google.protobuf.Value
+	56,  // 14: istio.operator.v1alpha1.Resources.limits:type_name -> istio.operator.v1alpha1.Resources.LimitsEntry
+	57,  // 15: istio.operator.v1alpha1.Resources.requests:type_name -> istio.operator.v1alpha1.Resources.RequestsEntry
+	58,  // 16: istio.operator.v1alpha1.ServiceAccount.annotations:type_name -> istio.operator.v1alpha1.ServiceAccount.AnnotationsEntry
+	36,  // 17: istio.operator.v1alpha1.DefaultResourcesConfig.requests:type_name -> istio.operator.v1alpha1.ResourcesRequestsConfig
+	10,  // 18: istio.operator.v1alpha1.EgressGatewayConfig.memory:type_name -> istio.operator.v1alpha1.TargetUtilizationConfig
+	10,  // 19: istio.operator.v1alpha1.EgressGatewayConfig.cpu:type_name -> istio.operator.v1alpha1.TargetUtilizationConfig
+	59,  // 20: istio.operator.v1alpha1.EgressGatewayConfig.env:type_name -> istio.operator.v1alpha1.EgressGatewayConfig.EnvEntry
+	60,  // 21: istio.operator.v1alpha1.EgressGatewayConfig.labels:type_name -> istio.operator.v1alpha1.EgressGatewayConfig.LabelsEntry
+	61,  // 22: istio.operator.v1alpha1.EgressGatewayConfig.nodeSelector:type_name -> istio.operator.v1alpha1.EgressGatewayConfig.NodeSelectorEntry
+	62,  // 23: istio.operator.v1alpha1.EgressGatewayConfig.podAnnotations:type_name -> istio.operator.v1alpha1.EgressGatewayConfig.PodAnnotationsEntry
+	93,  // 24: istio.operator.v1alpha1.EgressGatewayConfig.podAntiAffinityLabelSelector:type_name -> k8s.io.apimachinery.pkg.apis.meta.v1.LabelSelector
+	93,  // 25: istio.operator.v1alpha1.EgressGatewayConfig.podAntiAffinityTermLabelSelector:type_name -> k8s.io.apimachinery.pkg.apis.meta.v1.LabelSelector
+	32,  // 26: istio.operator.v1alpha1.EgressGatewayConfig.ports:type_name -> istio.operator.v1alpha1.PortsConfig
+	11,  // 27: istio.operator.v1alpha1.EgressGatewayConfig.resources:type_name -> istio.operator.v1alpha1.Resources
+	38,  // 28: istio.operator.v1alpha1.EgressGatewayConfig.secretVolumes:type_name -> istio.operator.v1alpha1.SecretVolume
+	63,  // 29: istio.operator.v1alpha1.EgressGatewayConfig.serviceAnnotations:type_name -> istio.operator.v1alpha1.EgressGatewayConfig.ServiceAnnotationsEntry
+	94,  // 30: istio.operator.v1alpha1.EgressGatewayConfig.tolerations:type_name -> k8s.io.api.core.v1.Toleration
+	49,  // 31: istio.operator.v1alpha1.EgressGatewayConfig.rollingMaxSurge:type_name -> istio.operator.v1alpha1.IntOrString
+	49,  // 32: istio.operator.v1alpha1.EgressGatewayConfig.rollingMaxUnavailable:type_name -> istio.operator.v1alpha1.IntOrString
+	64,  // 33: istio.operator.v1alpha1.EgressGatewayConfig.configVolumes:type_name -> istio.operator.v1alpha1.EgressGatewayConfig.ConfigVolumesEntry
+	65,  // 34: istio.operator.v1alpha1.EgressGatewayConfig.additionalContainers:type_name -> istio.operator.v1alpha1.EgressGatewayConfig.AdditionalContainersEntry
+	12,  // 35: istio.operator.v1alpha1.EgressGatewayConfig.serviceAccount:type_name -> istio.operator.v1alpha1.ServiceAccount
+	15,  // 36: istio.operator.v1alpha1.GatewaysConfig.istio_egressgateway:type_name -> istio.operator.v1alpha1.EgressGatewayConfig
+	21,  // 37: istio.operator.v1alpha1.GatewaysConfig.istio_ingressgateway:type_name -> istio.operator.v1alpha1.IngressGatewayConfig
+	90,  // 38: istio.operator.v1alpha1.GatewaysConfig.securityContext:type_name -> google.protobuf.Value
+	90,  // 39: istio.operator.v1alpha1.GatewaysConfig.seccompProfile:type_name -> google.protobuf.Value
+	4,   // 40: istio.operator.v1alpha1.GlobalConfig.arch:type_name -> istio.operator.v1alpha1.ArchConfig
+	66,  // 41: istio.operator.v1alpha1.GlobalConfig.defaultNodeSelector:type_name -> istio.operator.v1alpha1.GlobalConfig.DefaultNodeSelectorEntry
+	13,  // 42: istio.operator.v1alpha1.GlobalConfig.defaultPodDisruptionBudget:type_name -> istio.operator.v1alpha1.DefaultPodDisruptionBudgetConfig
+	14,  // 43: istio.operator.v1alpha1.GlobalConfig.defaultResources:type_name -> istio.operator.v1alpha1.DefaultResourcesConfig
+	94,  // 44: istio.operator.v1alpha1.GlobalConfig.defaultTolerations:type_name -> k8s.io.api.core.v1.Toleration
+	20,  // 45: istio.operator.v1alpha1.GlobalConfig.logging:type_name -> istio.operator.v1alpha1.GlobalLoggingConfig
+	67,  // 46: istio.operator.v1alpha1.GlobalConfig.meshNetworks:type_name -> istio.operator.v1alpha1.GlobalConfig.MeshNetworksEntry
+	22,  // 47: istio.operator.v1alpha1.GlobalConfig.multiCluster:type_name -> istio.operator.v1alpha1.MultiClusterConfig
+	33,  // 48: istio.operator.v1alpha1.GlobalConfig.proxy:type_name -> istio.operator.v1alpha1.ProxyConfig
+	35,  // 49: istio.operator.v1alpha1.GlobalConfig.proxy_init:type_name -> istio.operator.v1alpha1.ProxyInitConfig
+	37,  // 50: istio.operator.v1alpha1.GlobalConfig.sds:type_name -> istio.operator.v1alpha1.SDSConfig
+	90,  // 51: istio.operator.v1alpha1.GlobalConfig.tag:type_name -> google.protobuf.Value
+	40,  // 52: istio.operator.v1alpha1.GlobalConfig.tracer:type_name -> istio.operator.v1alpha1.TracerConfig
+	19,  // 53: istio.operator.v1alpha1.GlobalConfig.istiod:type_name -> istio.operator.v1alpha1.IstiodConfig
+	18,  // 54: istio.operator.v1alpha1.GlobalConfig.sts:type_name -> istio.operator.v1alpha1.STSConfig
+	50,  // 55: istio.operator.v1alpha1.GlobalConfig.waypoint:type_name -> istio.operator.v1alpha1.WaypointConfig
+	51,  // 56: istio.operator.v1alpha1.GlobalConfig.networkPolicy:type_name -> istio.operator.v1alpha1.NetworkPolicyConfig
+	0,   // 57: istio.operator.v1alpha1.GlobalConfig.resourceScope:type_name -> istio.operator.v1alpha1.ResourceScope
+	10,  // 58: istio.operator.v1alpha1.IngressGatewayConfig.memory:type_name -> istio.operator.v1alpha1.TargetUtilizationConfig
+	10,  // 59: istio.operator.v1alpha1.IngressGatewayConfig.cpu:type_name -> istio.operator.v1alpha1.TargetUtilizationConfig
+	68,  // 60: istio.operator.v1alpha1.IngressGatewayConfig.env:type_name -> istio.operator.v1alpha1.IngressGatewayConfig.EnvEntry
+	69,  // 61: istio.operator.v1alpha1.IngressGatewayConfig.labels:type_name -> istio.operator.v1alpha1.IngressGatewayConfig.LabelsEntry
+	70,  // 62: istio.operator.v1alpha1.IngressGatewayConfig.nodeSelector:type_name -> istio.operator.v1alpha1.IngressGatewayConfig.NodeSelectorEntry
+	71,  // 63: istio.operator.v1alpha1.IngressGatewayConfig.podAnnotations:type_name -> istio.operator.v1alpha1.IngressGatewayConfig.PodAnnotationsEntry
+	93,  // 64: istio.operator.v1alpha1.IngressGatewayConfig.podAntiAffinityLabelSelector:type_name -> k8s.io.apimachinery.pkg.apis.meta.v1.LabelSelector
+	93,  // 65: istio.operator.v1alpha1.IngressGatewayConfig.podAntiAffinityTermLabelSelector:type_name -> k8s.io.apimachinery.pkg.apis.meta.v1.LabelSelector
+	32,  // 66: istio.operator.v1alpha1.IngressGatewayConfig.ports:type_name -> istio.operator.v1alpha1.PortsConfig
+	72,  // 67: istio.operator.v1alpha1.IngressGatewayConfig.resources:type_name -> istio.operator.v1alpha1.IngressGatewayConfig.ResourcesEntry
+	38,  // 68: istio.operator.v1alpha1.IngressGatewayConfig.secretVolumes:type_name -> istio.operator.v1alpha1.SecretVolume
+	73,  // 69: istio.operator.v1alpha1.IngressGatewayConfig.serviceAnnotations:type_name -> istio.operator.v1alpha1.IngressGatewayConfig.ServiceAnnotationsEntry
+	49,  // 70: istio.operator.v1alpha1.IngressGatewayConfig.rollingMaxSurge:type_name -> istio.operator.v1alpha1.IntOrString
+	49,  // 71: istio.operator.v1alpha1.IngressGatewayConfig.rollingMaxUnavailable:type_name -> istio.operator.v1alpha1.IntOrString
+	94,  // 72: istio.operator.v1alpha1.IngressGatewayConfig.tolerations:type_name -> k8s.io.api.core.v1.Toleration
+	74,  // 73: istio.operator.v1alpha1.IngressGatewayConfig.ingressPorts:type_name -> istio.operator.v1alpha1.IngressGatewayConfig.IngressPortsEntry
+	75,  // 74: istio.operator.v1alpha1.IngressGatewayConfig.additionalContainers:type_name -> istio.operator.v1alpha1.IngressGatewayConfig.AdditionalContainersEntry
+	76,  // 75: istio.operator.v1alpha1.IngressGatewayConfig.configVolumes:type_name -> istio.operator.v1alpha1.IngressGatewayConfig.ConfigVolumesEntry
+	12,  // 76: istio.operator.v1alpha1.IngressGatewayConfig.serviceAccount:type_name -> istio.operator.v1alpha1.ServiceAccount
+	3,   // 77: istio.operator.v1alpha1.OutboundTrafficPolicyConfig.mode:type_name -> istio.operator.v1alpha1.OutboundTrafficPolicyConfig.Mode
+	77,  // 78: istio.operator.v1alpha1.PilotConfig.autoscaleBehavior:type_name -> istio.operator.v1alpha1.PilotConfig.AutoscaleBehaviorEntry
+	11,  // 79: istio.operator.v1alpha1.PilotConfig.resources:type_name -> istio.operator.v1alpha1.Resources
+	10,  // 80: istio.operator.v1alpha1.PilotConfig.cpu:type_name -> istio.operator.v1alpha1.TargetUtilizationConfig
+	78,  // 81: istio.operator.v1alpha1.PilotConfig.nodeSelector:type_name -> istio.operator.v1alpha1.PilotConfig.NodeSelectorEntry
+	95,  // 82: istio.operator.v1alpha1.PilotConfig.keepaliveMaxServerConnectionAge:type_name -> k8s.io.apimachinery.pkg.apis.meta.v1.Duration
+	79,  // 83: istio.operator.v1alpha1.PilotConfig.deploymentLabels:type_name -> istio.operator.v1alpha1.PilotConfig.DeploymentLabelsEntry
+	80,  // 84: istio.operator.v1alpha1.PilotConfig.podLabels:type_name -> istio.operator.v1alpha1.PilotConfig.PodLabelsEntry
+	81,  // 85: istio.operator.v1alpha1.PilotConfig.env:type_name -> istio.operator.v1alpha1.PilotConfig.EnvEntry
+	91,  // 86: istio.operator.v1alpha1.PilotConfig.affinity:type_name -> k8s.io.api.core.v1.Affinity
+	49,  // 87: istio.operator.v1alpha1.PilotConfig.rollingMaxSurge:type_name -> istio.operator.v1alpha1.IntOrString
+	49,  // 88: istio.operator.v1alpha1.PilotConfig.rollingMaxUnavailable:type_name -> istio.operator.v1alpha1.IntOrString
+	94,  // 89: istio.operator.v1alpha1.PilotConfig.tolerations:type_name -> k8s.io.api.core.v1.Toleration
+	82,  // 90: istio.operator.v1alpha1.PilotConfig.podAnnotations:type_name -> istio.operator.v1alpha1.PilotConfig.PodAnnotationsEntry
+	83,  // 91: istio.operator.v1alpha1.PilotConfig.serviceAnnotations:type_name -> istio.operator.v1alpha1.PilotConfig.ServiceAnnotationsEntry
+	84,  // 92: istio.operator.v1alpha1.PilotConfig.serviceAccountAnnotations:type_name -> istio.operator.v1alpha1.PilotConfig.ServiceAccountAnnotationsEntry
+	90,  // 93: istio.operator.v1alpha1.PilotConfig.tag:type_name -> google.protobuf.Value
+	92,  // 94: istio.operator.v1alpha1.PilotConfig.seccompProfile:type_name -> k8s.io.api.core.v1.SeccompProfile
+	96,  // 95: istio.operator.v1alpha1.PilotConfig.topologySpreadConstraints:type_name -> k8s.io.api.core.v1.TopologySpreadConstraint
+	85,  // 96: istio.operator.v1alpha1.PilotConfig.extraContainerArgs:type_name -> istio.operator.v1alpha1.PilotConfig.ExtraContainerArgsEntry
+	97,  // 97: istio.operator.v1alpha1.PilotConfig.volumeMounts:type_name -> k8s.io.api.core.v1.VolumeMount
+	98,  // 98: istio.operator.v1alpha1.PilotConfig.volumes:type_name -> k8s.io.api.core.v1.Volume
+	10,  // 99: istio.operator.v1alpha1.PilotConfig.memory:type_name -> istio.operator.v1alpha1.TargetUtilizationConfig
+	6,   // 100: istio.operator.v1alpha1.PilotConfig.cni:type_name -> istio.operator.v1alpha1.CNIUsageConfig
+	25,  // 101: istio.operator.v1alpha1.PilotConfig.taint:type_name -> istio.operator.v1alpha1.PilotTaintControllerConfig
+	46,  // 102: istio.operator.v1alpha1.PilotConfig.istiodRemote:type_name -> istio.operator.v1alpha1.IstiodRemoteConfig
+	86,  // 103: istio.operator.v1alpha1.PilotConfig.envVarFrom:type_name -> istio.operator.v1alpha1.PilotConfig.EnvVarFromEntry
+	1,   // 104: istio.operator.v1alpha1.PilotIngressConfig.ingressControllerMode:type_name -> istio.operator.v1alpha1.ingressControllerMode
+	29,  // 105: istio.operator.v1alpha1.TelemetryConfig.v2:type_name -> istio.operator.v1alpha1.TelemetryV2Config
+	30,  // 106: istio.operator.v1alpha1.TelemetryV2Config.prometheus:type_name -> istio.operator.v1alpha1.TelemetryV2PrometheusConfig
+	31,  // 107: istio.operator.v1alpha1.TelemetryV2Config.stackdriver:type_name -> istio.operator.v1alpha1.TelemetryV2StackDriverConfig
+	34,  // 108: istio.operator.v1alpha1.ProxyConfig.startupProbe:type_name -> istio.operator.v1alpha1.StartupProbe
+	11,  // 109: istio.operator.v1alpha1.ProxyConfig.resources:type_name -> istio.operator.v1alpha1.Resources
+	2,   // 110: istio.operator.v1alpha1.ProxyConfig.tracer:type_name -> istio.operator.v1alpha1.tracer
+	99,  // 111: istio.operator.v1alpha1.ProxyConfig.lifecycle:type_name -> k8s.io.api.core.v1.Lifecycle
+	11,  // 112: istio.operator.v1alpha1.ProxyInitConfig.resources:type_name -> istio.operator.v1alpha1.Resources
+	87,  // 113: istio.operator.v1alpha1.SDSConfig.token:type_name -> istio.operator.v1alpha1.SDSConfig.TokenEntry
+	93,  // 114: istio.operator.v1alpha1.SidecarInjectorConfig.neverInjectSelector:type_name -> k8s.io.apimachinery.pkg.apis.meta.v1.LabelSelector
+	93,  // 115: istio.operator.v1alpha1.SidecarInjectorConfig.alwaysInjectSelector:type_name -> k8s.io.apimachinery.pkg.apis.meta.v1.LabelSelector
+	88,  // 116: istio.operator.v1alpha1.SidecarInjectorConfig.injectedAnnotations:type_name -> istio.operator.v1alpha1.SidecarInjectorConfig.InjectedAnnotationsEntry
+	89,  // 117: istio.operator.v1alpha1.SidecarInjectorConfig.templates:type_name -> istio.operator.v1alpha1.SidecarInjectorConfig.TemplatesEntry
+	41,  // 118: istio.operator.v1alpha1.TracerConfig.datadog:type_name -> istio.operator.v1alpha1.TracerDatadogConfig
+	42,  // 119: istio.operator.v1alpha1.TracerConfig.lightstep:type_name -> istio.operator.v1alpha1.TracerLightStepConfig
+	43,  // 120: istio.operator.v1alpha1.TracerConfig.zipkin:type_name -> istio.operator.v1alpha1.TracerZipkinConfig
+	44,  // 121: istio.operator.v1alpha1.TracerConfig.stackdriver:type_name -> istio.operator.v1alpha1.TracerStackdriverConfig
+	5,   // 122: istio.operator.v1alpha1.Values.cni:type_name -> istio.operator.v1alpha1.CNIConfig
+	16,  // 123: istio.operator.v1alpha1.Values.gateways:type_name -> istio.operator.v1alpha1.GatewaysConfig
+	17,  // 124: istio.operator.v1alpha1.Values.global:type_name -> istio.operator.v1alpha1.GlobalConfig
+	24,  // 125: istio.operator.v1alpha1.Values.pilot:type_name -> istio.operator.v1alpha1.PilotConfig
+	90,  // 126: istio.operator.v1alpha1.Values.ztunnel:type_name -> google.protobuf.Value
+	28,  // 127: istio.operator.v1alpha1.Values.telemetry:type_name -> istio.operator.v1alpha1.TelemetryConfig
+	39,  // 128: istio.operator.v1alpha1.Values.sidecarInjectorWebhook:type_name -> istio.operator.v1alpha1.SidecarInjectorConfig
+	6,   // 129: istio.operator.v1alpha1.Values.istio_cni:type_name -> istio.operator.v1alpha1.CNIUsageConfig
+	90,  // 130: istio.operator.v1alpha1.Values.meshConfig:type_name -> google.protobuf.Value
+	45,  // 131: istio.operator.v1alpha1.Values.base:type_name -> istio.operator.v1alpha1.BaseConfig
+	46,  // 132: istio.operator.v1alpha1.Values.istiodRemote:type_name -> istio.operator.v1alpha1.IstiodRemoteConfig
+	48,  // 133: istio.operator.v1alpha1.Values.experimental:type_name -> istio.operator.v1alpha1.ExperimentalConfig
+	90,  // 134: istio.operator.v1alpha1.Values.gatewayClasses:type_name -> google.protobuf.Value
+	100, // 135: istio.operator.v1alpha1.IntOrString.intVal:type_name -> google.protobuf.Int32Value
+	101, // 136: istio.operator.v1alpha1.IntOrString.strVal:type_name -> google.protobuf.StringValue
+	11,  // 137: istio.operator.v1alpha1.WaypointConfig.resources:type_name -> istio.operator.v1alpha1.Resources
+	91,  // 138: istio.operator.v1alpha1.WaypointConfig.affinity:type_name -> k8s.io.api.core.v1.Affinity
+	96,  // 139: istio.operator.v1alpha1.WaypointConfig.topologySpreadConstraints:type_name -> k8s.io.api.core.v1.TopologySpreadConstraint
+	102, // 140: istio.operator.v1alpha1.WaypointConfig.nodeSelector:type_name -> k8s.io.api.core.v1.NodeSelector
+	94,  // 141: istio.operator.v1alpha1.WaypointConfig.toleration:type_name -> k8s.io.api.core.v1.Toleration
+	90,  // 142: istio.operator.v1alpha1.EgressGatewayConfig.ConfigVolumesEntry.value:type_name -> google.protobuf.Value
+	90,  // 143: istio.operator.v1alpha1.EgressGatewayConfig.AdditionalContainersEntry.value:type_name -> google.protobuf.Value
+	90,  // 144: istio.operator.v1alpha1.GlobalConfig.MeshNetworksEntry.value:type_name -> google.protobuf.Value
+	90,  // 145: istio.operator.v1alpha1.IngressGatewayConfig.IngressPortsEntry.value:type_name -> google.protobuf.Value
+	90,  // 146: istio.operator.v1alpha1.IngressGatewayConfig.AdditionalContainersEntry.value:type_name -> google.protobuf.Value
+	90,  // 147: istio.operator.v1alpha1.IngressGatewayConfig.ConfigVolumesEntry.value:type_name -> google.protobuf.Value
+	90,  // 148: istio.operator.v1alpha1.PilotConfig.AutoscaleBehaviorEntry.value:type_name -> google.protobuf.Value
+	90,  // 149: istio.operator.v1alpha1.PilotConfig.ExtraContainerArgsEntry.value:type_name -> google.protobuf.Value
+	90,  // 150: istio.operator.v1alpha1.PilotConfig.EnvVarFromEntry.value:type_name -> google.protobuf.Value
+	90,  // 151: istio.operator.v1alpha1.SDSConfig.TokenEntry.value:type_name -> google.protobuf.Value
+	90,  // 152: istio.operator.v1alpha1.SidecarInjectorConfig.TemplatesEntry.value:type_name -> google.protobuf.Value
+	153, // [153:153] is the sub-list for method output_type
+	153, // [153:153] is the sub-list for method input_type
+	153, // [153:153] is the sub-list for extension type_name
+	153, // [153:153] is the sub-list for extension extendee
+	0,   // [0:153] is the sub-list for field type_name
 }
 
 func init() { file_pkg_apis_values_types_proto_init() }
@@ -6258,7 +6348,7 @@ func file_pkg_apis_values_types_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_pkg_apis_values_types_proto_rawDesc), len(file_pkg_apis_values_types_proto_rawDesc)),
 			NumEnums:      4,
-			NumMessages:   52,
+			NumMessages:   86,
 			NumExtensions: 0,
 			NumServices:   0,
 		},
